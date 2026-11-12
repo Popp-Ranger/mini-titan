@@ -766,7 +766,7 @@
     var v = $('v-looks'), keep = v.scrollTop, egg = S.stage === 0;
     var k = egg ? 1 : [1, 1.6, 1.4, 1.2, 1][S.stage];                 // les jeunes sont agrandis, pieds sur la même ligne
     var box = 'width:' + (82 * k).toFixed(1) + '%;left:' + ((100 - 82 * k) / 2).toFixed(1) + '%;top:' + (87.3 - 73.8 * k).toFixed(1) + '%';
-    v.innerHTML = '<h1 class="vt">Looks</h1><p class="lead">Dix habits pour ton monstre et son décor. Tu peux en changer quand tu veux, sans rien perdre.</p><div class="looks">' +
+    v.innerHTML = '<h1 class="vt">Looks</h1><p class="lead">Des habits pour ton monstre et son décor. Tu peux en changer quand tu veux, sans rien perdre.</p><div class="looks">' +
       MT.SKINS.map(function (sk, i) {
         return '<button class="look' + (i === S.skin ? ' on' : '') + '" type="button" data-i="' + i + '" aria-pressed="' + (i === S.skin) + '"><span class="pv" style="background:linear-gradient(' + sk.ui.bgTop + ',' + sk.ui.bgBot + ')">' +
           '<span class="lm" style="' + box + '">' + MT.art.monster(sk, { stage: egg ? 4 : S.stage, form: egg ? 'titan' : S.form, mood: 'happy', uid: uid() }) + '</span></span>' +
@@ -872,7 +872,7 @@
       '<div class="welcome"><div class="duo"><div class="big"></div><div class="egg"></div></div><h2>Bienvenue\u202f!</h2><p>Un œuf mystérieux t\'attend. Dedans, un tout petit monstre qui ne demande qu\'à grandir… si tu prends bien soin de lui.</p></div>' +
       '<div class="full-foot"><button class="btn block" type="button" data-b="next">Commencer</button></div></div>' +
       '<div class="step" data-s="1"><div class="top">' + backBtn + dots(1) + '<span class="sp"></span></div>' +
-      '<div class="head"><h2>Choisis son look</h2><p>Fais glisser pour voir les dix. Tu pourras en changer plus tard.</p></div>' +
+      '<div class="head"><h2>Choisis son look</h2><p>Fais glisser pour les voir tous. Tu pourras en changer plus tard.</p></div>' +
       '<div class="carousel">' + MT.SKINS.map(function (sk, i) { return '<div class="lcard" data-i="' + i + '" style="background:linear-gradient(' + sk.ui.bgTop + ',' + sk.ui.bgBot + ')"><div class="lbg"></div><div class="lm"></div><div class="le"></div><div class="cap2 glass"><b>' + esc(sk.name) + '</b><span>' + esc(sk.desc) + '</span></div></div>'; }).join('') + '</div>' +
       '<div class="cdots">' + MT.SKINS.map(function () { return '<i></i>'; }).join('') + '</div>' +
       '<div class="full-foot"><button class="btn block" type="button" data-b="next">Choisir ce look</button></div></div>' +

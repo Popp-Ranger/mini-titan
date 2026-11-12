@@ -85,7 +85,7 @@
   function palette(sk, sick) {
     var s = sk.c, c = {
       body: s.body, shade: s.shade, light: s.light, belly: s.belly, bellyShade: s.bellyShade,
-      plates: [].concat(s.plate), glow: s.plateGlow, out: s.out, cheek: s.cheek
+      plates: [].concat(s.plate), glow: s.plateGlow, out: s.out, cheek: s.cheek, shell: s.shell
     };
     if (sick) {                                  // teint pâle et verdâtre
       c.body = mix(s.body, '#b4c79a', 0.5); c.shade = mix(s.shade, '#74896a', 0.5); c.light = mix(s.light, '#e9f2cf', 0.55);
@@ -129,6 +129,8 @@
     }
     if (type === 'round') return 'M' + a(-w / 2) + ' 6V0C' + a(-w / 2) + ' ' + a(-h * 1.32) + ' ' + a(w / 2) + ' ' + a(-h * 1.32) + ' ' + a(w / 2) + ' 0V6Z';
     if (type === 'crystal') return 'M' + a(-w * 0.42) + ' 6L' + a(-w * 0.5) + ' ' + a(-h * 0.48) + 'L' + a(-w * 0.1) + ' ' + a(-h) + 'L' + a(w * 0.36) + ' ' + a(-h * 0.6) + 'L' + a(w * 0.42) + ' 6Z';
+    if (type === 'flame') return 'M' + a(-w * 0.5) + ' 6V0C' + a(-w * 0.7) + ' ' + a(-h * 0.42) + ' ' + a(-w * 0.12) + ' ' + a(-h * 0.56) + ' ' + a(-w * 0.3) + ' ' + a(-h * 1.12) +
+      'C' + a(w * 0.16) + ' ' + a(-h * 0.86) + ' ' + a(w * 0.05) + ' ' + a(-h * 0.56) + ' ' + a(w * 0.3) + ' ' + a(-h * 0.7) + 'C' + a(w * 0.5) + ' ' + a(-h * 0.42) + ' ' + a(w * 0.56) + ' ' + a(-h * 0.2) + ' ' + a(w * 0.5) + ' 0V6Z';
     if (type === 'fin') return 'M' + a(-w * 0.5) + ' 6V0C' + a(-w * 0.66) + ' ' + a(-h * 0.5) + ' ' + a(-w * 0.52) + ' ' + a(-h * 0.96) + ' ' + a(-w * 0.26) + ' ' + a(-h) +
       'C' + a(0) + ' ' + a(-h * 1.0) + ' ' + a(w * 0.34) + ' ' + a(-h * 0.5) + ' ' + a(w * 0.5) + ' 0V6Z';
     /* tri : triangle à pointe arrondie, légèrement couché vers la queue */
@@ -467,8 +469,18 @@
         q = tg.at(tt[i]);
         patT += Pa(wedge(q.x + q.nx * q.w, q.y + q.ny * q.w, -q.nx, -q.ny, q.w * 1.35, q.w * 0.3), pat);
       }
+    } else if (sk.pattern === 'cracks') {          // fissures de braise : le feu affleure sous la peau sombre
+      var ember = c.plates[0];
+      var cr = function (pts, w) { var dd = 'M' + XY(pts[0][0], pts[0][1]), k; for (k = 1; k < pts.length; k++) dd += 'L' + XY(pts[k][0], pts[k][1]); return line(dd, ember, w * 2.4, op(0.35)) + line(dd, ember, w) + line(dd, c.glow, w * 0.4); };
+      patO = 0.95;
+      patH = cr([[h.x - h.rx * 0.95, h.y - h.ry * 0.1], [h.x - h.rx * 0.66, h.y - h.ry * 0.3], [h.x - h.rx * 0.6, h.y - h.ry * 0.62], [h.x - h.rx * 0.34, h.y - h.ry * 0.78]], h.rx * 0.035) +
+        cr([[h.x - h.rx * 0.66, h.y - h.ry * 0.3], [h.x - h.rx * 0.46, h.y - h.ry * 0.2]], h.rx * 0.03);
+      patB = cr([[b.x - b.w * 0.98, b.y - b.w * 0.5], [b.x - b.w * 0.62, b.y - b.w * 0.2], [b.x - b.w * 0.7, b.y + b.w * 0.2], [b.x - b.w * 0.4, b.y + b.w * 0.5], [b.x - b.w * 0.5, b.y + b.w * 0.9]], b.w * 0.045) +
+        cr([[b.x - b.w * 0.62, b.y - b.w * 0.2], [b.x - b.w * 0.36, b.y - b.w * 0.3]], b.w * 0.035) + cr([[b.x - b.w * 0.7, b.y + b.w * 0.2], [b.x - b.w * 0.95, b.y + b.w * 0.34]], b.w * 0.035);
+      var tk = st === 1 ? [0.5] : [0.3, 0.52, 0.72];
+      for (i = 0; i < tk.length; i++) { q = tg.at(tk[i]); patT += cr([[q.x + q.nx * q.w, q.y + q.ny * q.w], [q.x + q.nx * q.w * 0.3 + 3, q.y + q.ny * q.w * 0.3], [q.x - q.nx * q.w * 0.2 - 2, q.y - q.ny * q.w * 0.2]], Math.max(1.2, q.w * 0.12)); }
     } else if (sk.pattern === 'spots') {
-      var hs = [[124, 0.6, 0.115], [158, 0.72, 0.08], [98, 0.74, 0.06], [146, 0.36, 0.05]];
+      var hs =[[124, 0.6, 0.115], [158, 0.72, 0.08], [98, 0.74, 0.06], [146, 0.36, 0.05]];
       for (i = 0; i < hs.length; i++) {
         a = hs[i][0] * Math.PI / 180;
         patH += E(h.x + h.rx * Math.cos(a) * hs[i][1], h.y - h.ry * Math.sin(a) * hs[i][1], h.rx * hs[i][2], h.rx * hs[i][2] * 0.9, pat);
@@ -573,11 +585,28 @@
       fx += '<g class="mt-spark">' + line(sd, c.out, sl * 0.34) + line(sd, '#ffe45c', sl * 0.18) + '</g>';
     }
 
+    /* --- ailes de chauve-souris (looks avec sk.wings), derrière le corps, à partir du stade enfant */
+    var wings = '';
+    if (sk.wings && st >= 2) {
+      var W = b.w * (G.form === 'grognon' ? 0.95 : [0, 0, 0.66, 0.98, 1.3][st]), ax = b.x - b.w * 0.42, ay = n.y + (b.yb - n.y) * 0.3;
+      var droop = G.form === 'grognon' ? 0.5 : 0, wcol = mix(c.shade, c.out, 0.55), wedge2 = c.plates[0];
+      var wing = function (ox, oy, k, fill, o) {
+        var x0 = ax + ox, y0 = ay + oy, w = W * k;
+        var t1 = [x0 - w * 1.5, y0 - w * (1.3 - droop)], t2 = [x0 - w * 1.78, y0 - w * (0.32 - droop * 0.6)], t3 = [x0 - w * 1.22, y0 + w * 0.5], e = [x0 - w * 0.08, y0 + w * 0.72];
+        var dd = 'M' + XY(x0, y0) + 'Q' + XY(x0 - w * 0.5, y0 - w * (1.36 - droop)) + ' ' + XY(t1[0], t1[1]) + 'Q' + XY(x0 - w * 1.26, y0 - w * (0.72 - droop * 0.6)) + ' ' + XY(t2[0], t2[1]) +
+          'Q' + XY(x0 - w * 1.14, y0 - w * 0.02) + ' ' + XY(t3[0], t3[1]) + 'Q' + XY(x0 - w * 0.56, y0 + w * 0.3) + ' ' + XY(e[0], e[1]) + 'Z';
+        var bones = 'M' + XY(x0, y0) + 'L' + XY(t1[0], t1[1]) + 'M' + XY(x0, y0) + 'L' + XY(t2[0], t2[1]) + 'M' + XY(x0, y0) + 'L' + XY(t3[0], t3[1]);
+        return '<g class="mt-wing"' + org(x0, y0) + op(o) + '>' + Pa(dd, fill, ' stroke="' + wedge2 + '" stroke-width="' + r1(Math.max(1.2, w * 0.035)) + '" stroke-linejoin="round" stroke-opacity=".75"') +
+          line(bones, mix(wcol, c.light, 0.35), Math.max(1.4, w * 0.05), op(0.8)) + '</g>';
+      };
+      wings = wing(b.w * 0.5, -b.w * 0.16, 0.8, mix(wcol, c.out, 0.5), 0.95) + wing(0, 0, 1, wcol, 1);
+    }
+
     /* --- assemblage */
     var cx0 = b.x, armN = arm(G, R.arm, armA, 'sk', 'mt-arm-n'), armF = arm(G, R.armF, armA - 8, 'sd', 'mt-arm-f');
     s += E(b.x - 6, 3, b.w * 1.55 + R.tail.w0 * 0.4, Math.max(7, b.w * 0.24), 'url(#' + u + 'sh)', ' class="mt-shadow"');
     s += '<g class="mt-all"' + org(cx0, 0) + '><g class="mt-breath"' + org(cx0, 0) + '>' +
-      tail + plateLayer(plB, -2.2) + legFar + armF + body + legNear + head + armN + '</g>' + fx + '</g>';
+      wings + tail + plateLayer(plB, -2.2) + legFar + armF + body + legNear + head + armN + '</g>' + fx + '</g>';
     return '<defs>' + d + '</defs>' + s;
   }
 
@@ -593,6 +622,7 @@
       '<ellipse cx="' + q(-a * 0.34) + '" cy="' + q(-b * 0.74) + '" rx="' + q(a * 0.22) + '" ry="' + q(b * 0.1) + '" fill="#fff" opacity=".9" transform="rotate(-28 ' + q(-a * 0.34) + ' ' + q(-b * 0.74) + ')"/></g>';
   }
   function shellGrad(c, uid) {
+    if (c.shell) return rad(uid + 'sl', [0.36, 0.28, 0.85, 0.3, 0.2], [[0, mix(c.shell, '#ffffff', 0.34)], [0.5, c.shell], [1, mix(c.shell, '#000000', 0.45)]]);   // coquille sombre (look « braise »)
     var cream = mix('#fff8ec', c.light, 0.12);
     return rad(uid + 'sl', [0.36, 0.28, 0.85, 0.3, 0.2], [[0, '#ffffff'], [0.55, cream], [1, mix(cream, c.shade, 0.3)]]);
   }
@@ -615,6 +645,14 @@
         var by = -H * (0.26 + i * 0.25), amp = 9, zz = 'M' + XY(-W - 4, by), j;
         for (j = 0; j <= 6; j++) zz += 'L' + XY(-W - 4 + (j + 0.5) * (W * 2 + 8) / 6, by + (j % 2 ? amp : -amp) - Math.abs(j - 2.5) * 1.5);
         deco += line(zz + 'L' + XY(W + 4, by), i === 1 ? c.plates[0] : c.body, i === 1 ? 7 : 10);
+      }
+    } else if (sk.pattern === 'cracks') {          // veines de braise qui courent sur la coquille
+      var veins = [[[-50, -20], [-30, -34], [-36, -52], [-14, -62], [-20, -84], [-2, -96]], [[-36, -52], [-52, -64]], [[-14, -62], [6, -54], [14, -36], [34, -30]],
+        [[14, -36], [8, -16]], [[52, -70], [34, -78], [38, -98], [18, -108], [22, -124]], [[34, -78], [20, -72]], [[-20, -84], [-38, -96], [-30, -114]]];
+      for (i = 0; i < veins.length; i++) {
+        var vd = 'M' + XY(veins[i][0][0], veins[i][0][1]), vk;
+        for (vk = 1; vk < veins[i].length; vk++) vd += 'L' + XY(veins[i][vk][0], veins[i][vk][1]);
+        deco += line(vd, c.plates[0], 9, op(0.3)) + line(vd, c.plates[0], 4.2) + line(vd, c.glow, 1.6);
       }
     } else {
       var spots = [[-0.45, 0.22, 15], [0.38, 0.36, 12], [-0.1, 0.5, 9], [0.5, 0.66, 13], [-0.55, 0.62, 10], [0.02, 0.84, 12], [0.3, 0.1, 7], [-0.2, 0.06, 8]];
@@ -740,6 +778,8 @@
     '.mt-mon .mt-tail{animation:mt-tail 3.2s ease-in-out infinite}',
     '.mt-mon .mt-arm{animation:mt-arm 3.6s ease-in-out -.3s infinite}',
     '.mt-mon .mt-blink{animation:mt-blink 5.2s linear infinite}',
+    '.mt-mon .mt-wing{transform-box:view-box;animation:mt-wing 3.4s ease-in-out infinite}',
+    '@keyframes mt-wing{0%,100%{transform:rotate(-3deg)}50%{transform:rotate(5deg)}}',
     '.mt-mon .mt-glow{animation:mt-glow 2.6s ease-in-out infinite}',
     '.mt-mon .mt-core{animation:mt-core 2.6s ease-in-out infinite}',
     '.mt-mon .mt-glow,.mt-mon .mt-core{animation-delay:var(--d,0s)}',

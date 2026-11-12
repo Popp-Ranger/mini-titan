@@ -42,5 +42,10 @@ MT.SKINS = [
   { id:'pop', name:'Pop Art', desc:'Bande dessinée : violet, jaune, rouge',
     c:{ body:'#9b3dff', shade:'#6212c0', light:'#c896ff', belly:'#ffe600', bellyShade:'#f5b800', plate:'#ff3b3b', plateGlow:'#ffb0b0', out:'#16081f', cheek:'#ff5d8f' },
     plate:'tri', horn:false, pattern:'spots', chub:1, eyeBig:false, scene:'pop',
-    ui:{ accent:'#ff3b3b', accent2:'#ffe600', bgTop:'#ffd400', bgBot:'#ff6a00', ink:'#1a1024' } }
+    ui:{ accent:'#ff3b3b', accent2:'#ffe600', bgTop:'#ffd400', bgBot:'#ff6a00', ink:'#1a1024' } },
+  /* Démon de feu et d'ombre : œuf sombre veiné de braise, crinière de flammes, cornes, ailes. */
+  { id:'braise', name:'Ombre-Braise', desc:'Démon de feu et d\'ombre : ailes, cornes et crinière de flammes',
+    c:{ body:'#3d2c33', shade:'#170d12', light:'#75596a', belly:'#ff7a1a', bellyShade:'#c2380a', plate:['#ff3b1f','#ff8a1f','#ffc21f'], plateGlow:'#fff1a8', out:'#0d0508', cheek:'#ff5a2a', shell:'#40333c' },
+    plate:'flame', horn:true, pattern:'cracks', chub:1, eyeBig:false, wings:true, scene:'volcano',
+    ui:{ accent:'#ff5a1f', accent2:'#ffc21f', bgTop:'#4a1611', bgBot:'#0d0507', ink:'#ffeede' } }
 ];

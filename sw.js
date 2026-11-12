@@ -1,6 +1,6 @@
 /* Mini-Titan — service worker (appli installable, jouable hors ligne).
    Changer VERSION à chaque publication : l'ancien cache est supprimé à l'activation. */
-var VERSION = '2.2.2';
+var VERSION = '2.3.0';
 var PREFIX = 'mini-titan-';
 var CACHE = PREFIX + VERSION;
 
