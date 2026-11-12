@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mini-Titan — planche des décors et objets</title>
+<style>
+  :root { color-scheme: light; }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 20px 24px 60px; font: 14px/1.4 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; background: #eef0f6; color: #1b2033; }
+  h1 { font-size: 20px; margin: 0 0 4px; }
+  h2 { font-size: 16px; margin: 28px 0 10px; }
+  p.aide { margin: 0 0 12px; color: #5a6078; }
+  nav { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0 4px; align-items: center; }
+  nav a { padding: 5px 10px; border-radius: 999px; background: #fff; color: #1b2033; text-decoration: none; box-shadow: 0 1px 2px rgba(20,30,60,.12); }
+  nav a.on { background: #1b2033; color: #fff; }
+  nav label { margin-left: 10px; user-select: none; }
+  .rang { display: flex; flex-wrap: wrap; gap: 18px; align-items: flex-start; }
+  figure { margin: 0; }
+  figcaption { font-size: 12px; color: #5a6078; margin: 4px 2px 0; }
+  .tel { position: relative; width: 390px; border-radius: 30px; overflow: hidden; background: #000; box-shadow: 0 8px 24px rgba(20,30,60,.22); }
+  .tel > svg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+  .tel .temoin { pointer-events: none; display: none; }
+  body.temoin .tel .temoin { display: block; }
+  .objets { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+  .objets.petit { grid-template-columns: repeat(auto-fill, minmax(72px, 1fr)); }
+  .carte { border-radius: 14px; padding: 10px 6px 6px; text-align: center; background: #f6f7fb; box-shadow: 0 1px 2px rgba(20,30,60,.1); }
+  .sombre .carte { background: #171c30; color: #cfd5ea; }
+  .carte svg { display: block; margin: 0 auto; }
+  .carte span { display: block; font-size: 11px; margin-top: 4px; opacity: .75; }
+  .bloc { padding: 14px; border-radius: 18px; background: #fff; margin-bottom: 14px; }
+  .bloc.sombre { background: #0d1122; }
+  .bloc h3 { margin: 0 0 10px; font-size: 13px; font-weight: 600; }
+  .bloc.sombre h3 { color: #cfd5ea; }
+  .poids { font-size: 12px; color: #5a6078; }
+</style>
+</head>
+<body>
+<h1>Mini-Titan — décors et objets HD</h1>
+<p class="aide">Chaque décor : jour et nuit, en cadre court (390×420), très court (390×330) et haut (390×700) pour vérifier le rognage par le haut. <code>?scene=N</code> (0 à 9, ou le nom) n'affiche qu'un décor ; <code>?objets=1</code> n'affiche que les objets.</p>
+<nav id="nav"></nav>
+<main id="planche"></main>
+
+<script src="js/skins.js"></script>
+<script src="js/scenes.js"></script>
+<script>
+(function () {
+  var MT = window.MT, skins = MT.SKINS, q = {}, planche = document.getElementById('planche'), nav = document.getElementById('nav'), n = 0;
+  location.search.replace(/^\?/, '').split('&').forEach(function (kv) { var p = kv.split('='); if (p[0]) q[decodeURIComponent(p[0])] = decodeURIComponent(p[1] || ''); });
+
+  var st = document.createElement('style');
+  st.textContent = MT.scenes.css;
+  document.head.appendChild(st);
+
+  function el(tag, cls, html) { var e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; }
+  function temoin(skin) {
+    var c = skin.c;
+    return '<svg class="temoin" viewBox="0 0 400 600" preserveAspectRatio="xMidYMax slice" xmlns="http://www.w3.org/2000/svg">' +
+      '<rect x="90" y="220" width="220" height="260" fill="none" stroke="#fff" stroke-opacity=".7" stroke-width="1.5" stroke-dasharray="6 6"/>' +
+      '<line x1="0" y1="470" x2="400" y2="470" stroke="#fff" stroke-opacity=".7" stroke-width="1" stroke-dasharray="3 5"/>' +
+      '<ellipse cx="200" cy="472" rx="70" ry="9" fill="#000" opacity=".18"/>' +
+      '<ellipse cx="200" cy="384" rx="78" ry="88" fill="' + c.body + '"/>' +
+      '<ellipse cx="200" cy="408" rx="46" ry="54" fill="' + c.belly + '"/>' +
+      '<circle cx="176" cy="346" r="9" fill="#fff"/><circle cx="224" cy="346" r="9" fill="#fff"/><circle cx="177" cy="347" r="4.5" fill="' + c.out + '"/><circle cx="225" cy="347" r="4.5" fill="' + c.out + '"/></svg>';
+  }
+  function cadre(skin, night, h) {
+    var uid = 'pl' + (n++), svg = MT.scenes.render(skin, { night: night, uid: uid }), f = el('figure');
+    var t = el('div', 'tel', svg + temoin(skin));
+    t.style.height = h + 'px';
+    f.appendChild(t);
+    f.appendChild(el('figcaption', '', skin.scene + ' · ' + (night ? 'nuit' : 'jour') + ' · 390×' + h + ' · ' + (svg.length / 1024).toFixed(1) + ' Ko'));
+    return f;
+  }
+  function blocScene(skin, grand) {
+    planche.appendChild(el('h2', '', skin.scene + ' — ' + skin.name));
+    var r = el('div', 'rang');
+    if (grand) { r.appendChild(cadre(skin, false, 700)); r.appendChild(cadre(skin, true, 700)); r.appendChild(cadre(skin, false, 420)); r.appendChild(cadre(skin, true, 420)); r.appendChild(cadre(skin, false, 330)); r.appendChild(cadre(skin, true, 330)); }
+    else { r.appendChild(cadre(skin, false, 420)); r.appendChild(cadre(skin, true, 420)); r.appendChild(cadre(skin, false, 700)); r.appendChild(cadre(skin, true, 700)); }
+    planche.appendChild(r);
+  }
+  function blocObjets() {
+    if (!MT.props) return;
+    planche.appendChild(el('h2', '', 'Objets (' + MT.props.ids.length + ')'));
+    var ids = MT.props.ids.concat(['inconnu']), total = 0;
+    [['Fond clair — 48 px', '', 48], ['Fond sombre — 48 px', 'sombre', 48], ['Fond clair — 120 px', '', 120], ['Fond sombre — 120 px', 'sombre', 120]].forEach(function (cfg, k) {
+      var b = el('div', 'bloc ' + cfg[1]); b.appendChild(el('h3', '', cfg[0]));
+      var g = el('div', 'objets' + (cfg[2] < 100 ? ' petit' : ''));
+      ids.forEach(function (id) {
+        var s = MT.props.svg(id, 'po' + k), c = el('div', 'carte', s + '<span>' + id + '</span>');
+        if (k === 0) total += s.length;
+        c.firstChild.setAttribute('width', cfg[2]); c.firstChild.setAttribute('height', cfg[2]);
+        g.appendChild(c);
+      });
+      b.appendChild(g); planche.appendChild(b);
+    });
+    planche.appendChild(el('p', 'poids', 'Poids total des objets : ' + (total / 1024).toFixed(1) + ' Ko'));
+  }
+
+  /* navigation */
+  var sel = q.scene, idx = -1;
+  if (sel != null && sel !== '') { idx = /^\d+$/.test(sel) ? +sel : skins.map(function (s) { return s.scene; }).indexOf(sel); }
+  var liens = '<a href="planche-scenes.html"' + (idx < 0 && !q.objets ? ' class="on"' : '') + '>Tout</a>';
+  skins.forEach(function (s, i) { liens += '<a href="?scene=' + i + '"' + (i === idx ? ' class="on"' : '') + '>' + i + ' · ' + s.scene + '</a>'; });
+  liens += '<a href="?objets=1"' + (q.objets ? ' class="on"' : '') + '>Objets</a><label><input type="checkbox" id="tm"> silhouette témoin + zone calme</label>';
+  nav.innerHTML = liens;
+  /* ?zoom=0.6 : réduit la planche ; ?nu=1 : masque l'en-tête (pratique pour les captures) */
+  if (q.zoom) document.body.style.zoom = q.zoom;
+  if (q.nu) { nav.style.display = 'none'; document.querySelector('h1').style.display = 'none'; document.querySelector('.aide').style.display = 'none'; }
+  var tm = document.getElementById('tm');
+  tm.checked = q.temoin === '1';
+  function majTemoin() { document.body.classList.toggle('temoin', tm.checked); }
+  tm.addEventListener('change', majTemoin); majTemoin();
+
+  if (q.objets) blocObjets();
+  else if (idx >= 0 && skins[idx]) blocScene(skins[idx], true);
+  else { skins.forEach(function (s) { blocScene(s, false); }); blocObjets(); }
+})();
+</script>
+</body>
+</html>

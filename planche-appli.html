@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Mini-Titan — planche de l'appli</title>
+<style>
+  body { margin: 0; padding: 12px; background: #20222b; font: 13px system-ui, sans-serif; color: #dfe3f0; display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-start; }
+  figure { margin: 0; }
+  figcaption { padding: 4px 2px; }
+  iframe { display: block; border: 0; border-radius: 18px; background: #000; }
+</style>
+</head>
+<body>
+<script>
+/* Cadres de téléphone pour regarder l'appli à taille exacte.
+   ?w=390&h=844&v=demo%3Denfant%26look%3D0|demo%3Dtitan%26look%3D3   (v = liste de paramètres d'index.html, séparés par |) */
+var q = {}; location.search.replace(/[?&]([^=&]+)=([^&]*)/g, function (m, k, v) { q[k] = decodeURIComponent(v); });
+var w = +q.w || 390, h = +q.h || 844;
+(q.v || 'demo=enfant&look=0|demo=titan&look=3|demo=oeuf&look=1').split('|').forEach(function (p) {
+  var f = document.createElement('figure');
+  f.innerHTML = '<iframe width="' + w + '" height="' + h + '" src="index.html?' + p + '"></iframe><figcaption>' + p + ' · ' + w + '×' + h + '</figcaption>';
+  document.body.appendChild(f);
+});
+</script>
+</body>
+</html>

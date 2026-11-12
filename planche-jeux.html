@@ -1,0 +1,252 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+<title>Mini-Titan — planche des mini-jeux</title>
+<style>
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; }
+  body { min-height: 100vh; font: 14px/1.4 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; background: #10131f; color: #e8ebf7;
+         display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: center; gap: 24px; padding: 0 0 40px; }
+  /* cadre de téléphone : simule l'écran « jeux » de l'appli (en-tête + hôte) */
+  .tel { position: relative; flex: none; width: 390px; height: 700px; max-width: 100vw; display: flex; flex-direction: column; overflow: hidden;
+         background: #05070d; box-shadow: 0 12px 40px rgba(0,0,0,.5); }
+  @media (min-width: 700px) { body { padding-top: 24px; } .tel { border-radius: 34px; } }
+  /* mode capture (?avance=ms) : cadre calé en haut à gauche, animations CSS figées sur leur état final */
+  body.capture { justify-content: flex-start; padding: 0; flex-wrap: nowrap; }
+  body.capture .tel { border-radius: 0; max-width: none; }
+  body.capture .mtg-root, body.capture .mtg-root * { animation-duration: 0s !important; animation-delay: 0s !important; transition-duration: 0s !important; transition-delay: 0s !important; }
+  .entete { flex: none; height: 56px; display: flex; align-items: center; gap: 10px; padding: 0 8px 0 18px; color: var(--ink, #fff);
+            background: var(--bg1, #223); }
+  .entete h1 { flex: 1 1 auto; margin: 0; font-size: 18px; font-weight: 800; letter-spacing: -.01em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .fermer { flex: none; width: 44px; height: 44px; border: 0; border-radius: 50%; background: rgba(127,127,127,.28); color: inherit; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; }
+  .fermer svg { width: 22px; height: 22px; }
+  .fermer:active { transform: scale(.94); }
+  #hote { position: relative; flex: 1 1 auto; min-height: 0; background: var(--bg1, #223); }
+  .vide { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; padding: 24px; text-align: center;
+          color: var(--ink, #fff); background: linear-gradient(180deg, var(--bg1, #223), var(--bg2, #112)); }
+  .vide .apercu { width: 200px; height: 200px; }
+  .vide .apercu svg { width: 100%; height: 100%; display: block; }
+  .vide p { margin: 0; font-size: 16px; font-weight: 600; opacity: .9; }
+  .vide .res { font-size: 22px; font-weight: 800; }
+
+  .reglages { flex: 1 1 320px; max-width: 460px; padding: 0 16px; }
+  .reglages h2 { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: #8f97b5; margin: 18px 0 8px; }
+  .reglages p { margin: 0 0 8px; color: #a9b0cc; }
+  .ligne { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  select, .reglages button { font: inherit; color: #e8ebf7; background: #1c2136; border: 1px solid #2f3657; border-radius: 12px; padding: 10px 12px; min-height: 44px; }
+  .reglages button { cursor: pointer; font-weight: 650; }
+  .reglages button:active { transform: scale(.97); }
+  .reglages button.jeu { flex: 1 1 100%; text-align: left; display: flex; align-items: center; gap: 12px; }
+  .reglages button.jeu svg { width: 34px; height: 34px; flex: none; }
+  .reglages button.jeu small { display: block; font-weight: 500; color: #a9b0cc; font-size: 12px; }
+  label { display: inline-flex; align-items: center; gap: 6px; color: #c7cce3; }
+  pre { margin: 0; padding: 12px; border-radius: 12px; background: #080a13; border: 1px solid #232946; color: #b9f5c9; font: 12.5px/1.5 ui-monospace, Consolas, monospace;
+        white-space: pre-wrap; max-height: 220px; overflow: auto; }
+  code { font-family: ui-monospace, Consolas, monospace; font-size: 12.5px; color: #cfe1ff; }
+</style>
+</head>
+<body>
+
+<div class="tel" id="tel">
+  <header class="entete">
+    <h1 id="titre">Mini-jeux</h1>
+    <button class="fermer" id="fermer" type="button" aria-label="Fermer le jeu">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg>
+    </button>
+  </header>
+  <div id="hote"></div>
+</div>
+
+<section class="reglages">
+  <h2>Monstre</h2>
+  <div class="ligne">
+    <label>Look <select id="look"></select></label>
+    <label>Stade <select id="stade"></select></label>
+  </div>
+
+  <h2>Jeux</h2>
+  <div class="ligne" id="jeux"></div>
+  <div class="ligne" style="margin-top:10px">
+    <label>Joueur automatique
+      <select id="bot">
+        <option value="">non (je joue)</option>
+        <option value="gagne">il gagne</option>
+        <option value="perd">il perd</option>
+      </select>
+    </label>
+    <button id="stop" type="button">MT.games.stop()</button>
+  </div>
+
+  <h2>Résultats renvoyés</h2>
+  <pre id="journal">(aucune partie pour l'instant)</pre>
+
+  <h2>Paramètres d'adresse</h2>
+  <p><code>?jeu=cote|festin|memo</code> <code>&amp;look=0..9</code> <code>&amp;stade=0..4</code> (4g = adulte grognon) <code>&amp;auto=1</code> démarre tout de suite,
+     <code>&amp;bot=gagne|perd</code> joueur automatique, <code>&amp;l=390&amp;h=700</code> taille du cadre,
+     <code>&amp;avance=8000</code> mode capture : pousse l'horloge du jeu de 8 s d'un coup (avec le joueur automatique) et fige les animations.</p>
+  <p>Clavier : flèches gauche / droite (Gauche ou droite ?, Festin).</p>
+</section>
+
+<script src="js/skins.js"></script>
+<script src="js/core.js"></script>
+<script src="js/art.js"></script>
+<script src="js/scenes.js"></script>
+<script src="js/sfx.js"></script>
+<script src="js/games.js"></script>
+<script>
+(function () {
+  'use strict';
+  var q = new URLSearchParams(location.search);
+  var $ = function (id) { return document.getElementById(id); };
+  var tel = $('tel'), hote = $('hote'), titre = $('titre'), journal = $('journal');
+  var selLook = $('look'), selStade = $('stade'), selBot = $('bot');
+  var STADES = [['0', 'Œuf'], ['1', 'Bébé'], ['2', 'Enfant'], ['3', 'Ado'], ['4', 'Adulte titan'], ['4g', 'Adulte grognon']];
+  var lignes = [], nUid = 0, enCours = '', botTimer = 0;
+
+  /* ce que l'appli fait une fois : injecter les CSS */
+  var st = document.createElement('style');
+  st.textContent = (MT.art.css || '') + (MT.scenes.css || '') + MT.games.css;
+  document.head.appendChild(st);
+
+  MT.SKINS.forEach(function (s, i) { selLook.add(new Option(i + ' · ' + s.name, String(i))); });
+  STADES.forEach(function (s) { selStade.add(new Option(s[1], s[0])); });
+  selLook.value = String(Math.max(0, Math.min(MT.SKINS.length - 1, parseInt(q.get('look'), 10) || 0)));
+  var stadeQ = q.get('stade');
+  selStade.value = STADES.some(function (s) { return s[0] === stadeQ; }) ? stadeQ : '2';
+  if (q.get('bot') === 'gagne' || q.get('bot') === 'perd') selBot.value = q.get('bot');
+  var L = parseInt(q.get('l'), 10), H = parseInt(q.get('h'), 10);
+  if (L >= 280 && L <= 600) tel.style.width = L + 'px';
+  if (H >= 300 && H <= 1000) tel.style.height = H + 'px';
+
+  function skin() { return MT.SKINS[+selLook.value] || MT.SKINS[0]; }
+  function stade() { return parseInt(selStade.value, 10) || 0; }
+  function forme() { return stade() === 4 ? (selStade.value === '4g' ? 'grognon' : 'titan') : ''; }
+  function uid() { return 'pj' + (nUid++) + '_'; }
+
+  function habille() {
+    var ui = skin().ui;
+    tel.style.setProperty('--bg1', ui.bgTop); tel.style.setProperty('--bg2', ui.bgBot); tel.style.setProperty('--ink', ui.ink);
+  }
+  function accueil(texte, res) {
+    if (MT.games.running()) return;
+    habille();
+    titre.textContent = 'Mini-jeux';
+    hote.innerHTML = '<div class="vide"><div class="apercu">' + MT.art.monster(skin(), { stage: stade(), form: forme(), mood: res ? (res.win ? 'happy' : 'sad') : 'neutral', uid: uid() }) + '</div>' +
+      (res ? '<p class="res">' + (res.quit ? 'Partie interrompue' : (res.win ? 'Gagné' : 'Perdu')) + ' · score ' + res.score + '</p>' : '') +
+      '<p>' + texte + '</p></div>';
+  }
+
+  /* le ctx que l'appli fournit au jeu */
+  function ctx() {
+    var sk = skin(), stg = stade(), frm = forme();
+    return {
+      skin: sk, stage: stg, form: frm,
+      monster: function (o) { o = o || {}; return MT.art.monster(sk, { stage: stg, form: frm, mood: o.mood, uid: o.uid || uid() }); },
+      prop: function (id) { return MT.props.svg(id, uid()); },
+      sfx: function (nom, opts) { return MT.sfx.play(nom, opts); },
+      haptic: function (m) { return MT.haptic(m); },
+      uid: uid
+    };
+  }
+
+  function lance(id) {
+    var def = MT.games.list.filter(function (g) { return g.id === id; })[0];
+    if (!def) return null;
+    try { MT.sfx.unlock(); } catch (e) {}
+    habille();
+    hote.innerHTML = '';
+    titre.textContent = def.name;
+    enCours = id;
+    var t0 = performance.now();
+    var p = MT.games.start(id, hote, ctx());
+    p.then(function (res) {
+      var s = Math.round((performance.now() - t0) / 100) / 10;
+      lignes.unshift(id + ' → ' + JSON.stringify(res) + '   (' + s + ' s)');
+      journal.textContent = lignes.slice(0, 12).join('\n');
+      window.dernier = res;
+      if (enCours === id && !MT.games.running()) { enCours = ''; accueil('Choisis un jeu dans la liste.', res); }
+    });
+    return p;
+  }
+
+  MT.games.list.forEach(function (g) {
+    var b = document.createElement('button');
+    b.type = 'button'; b.className = 'jeu';
+    b.innerHTML = MT.props.svg(g.icon, uid()) + '<span>' + g.name + '<small>' + g.desc + ' Objectif : ' + g.goal + '.</small></span>';
+    b.addEventListener('click', function () { lance(g.id); });
+    $('jeux').appendChild(b);
+  });
+  $('fermer').addEventListener('click', function () { MT.games.stop(); });
+  $('stop').addEventListener('click', function () { MT.games.stop(); });
+  selLook.addEventListener('change', function () { accueil('Choisis un jeu dans la liste.'); });
+  selStade.addEventListener('change', function () { accueil('Choisis un jeu dans la liste.'); });
+
+  /* ---- joueur automatique : passe par de vrais événements (click / PointerEvent), comme un doigt ---- */
+  function pointeur(cible, type, x, y) {
+    var o = { bubbles: true, cancelable: true, composed: true, clientX: x, clientY: y, pointerId: 7, pointerType: 'touch', isPrimary: true, button: 0, buttons: type === 'pointerup' ? 0 : 1 };
+    var e;
+    try { e = new PointerEvent(type, o); } catch (err) { e = new MouseEvent(type.replace('pointer', 'mouse'), o); }
+    cible.dispatchEvent(e);
+  }
+  var botDown = false, botWait = 0;
+  function botPas(mode) {
+    var s = MT.games._test.state(), root = hote.querySelector('.mtg-root');
+    if (!s || !root) { botDown = false; return; }
+    var perd = mode === 'perd';
+    if (s.id === 'cote') {
+      if (s.phase === 'choix' && s.canPick) {
+        var veut = perd ? -s.answer : s.answer;
+        root.querySelector(veut < 0 ? '.mtg-btn-l' : '.mtg-btn-r').click();
+      }
+    } else if (s.id === 'festin') {
+      var r = root.querySelector('.mtg-stage').getBoundingClientRect(), cible = null, i, it;
+      for (i = 0; i < s.items.length; i++) {
+        it = s.items[i];
+        if (it.poop !== perd) continue;
+        if (!cible || it.y > cible.y) cible = it;
+      }
+      var x = cible ? cible.x : s.tx;
+      if (!perd) for (i = 0; i < s.items.length; i++) {            // esquive : une crotte arrive sur la tête
+        it = s.items[i];
+        if (it.poop && Math.abs(it.x - x) < 62 && it.y > s.gy * 0.35 && (!cible || it.y > cible.y)) x = it.x < s.sw / 2 ? it.x + 95 : it.x - 95;
+      }
+      var cx = r.left + x * (r.width / s.sw), cy = r.bottom - 30;
+      if (!botDown) { botDown = true; pointeur(root, 'pointerdown', cx, cy); }
+      else pointeur(root, 'pointermove', cx, cy);
+    } else if (s.id === 'memo') {
+      if (s.phase !== 'input') { botWait = 2; return; }
+      if (botWait-- > 0) return;
+      botWait = 4;
+      var k = s.seq[s.pos];
+      if (perd && s.seq.length >= 3) k = (k + 1) % 4;
+      var pads = root.querySelectorAll('.mtg-plate'), pr = pads[k].getBoundingClientRect();
+      pointeur(pads[k], 'pointerdown', pr.left + pr.width / 2, pr.top + pr.height / 2);
+      pointeur(pads[k], 'pointerup', pr.left + pr.width / 2, pr.top + pr.height / 2);
+    }
+  }
+  /* avance rapide : l'horloge du jeu est poussée à la main (un navigateur sans fenêtre ne fait pas tourner requestAnimationFrame) */
+  function avance(ms) {
+    var n = 0;
+    while (ms > 0 && MT.games.running()) {
+      MT.games._test.advance(16); ms -= 16; n++;
+      if (selBot.value && n % 4 === 0) botPas(selBot.value);
+    }
+  }
+  var AV = parseInt(q.get('avance'), 10) || 0;
+  if (AV > 0) document.body.classList.add('capture');
+  else botTimer = setInterval(function () { if (selBot.value && MT.games.running()) botPas(selBot.value); }, 60);
+
+  window.planche = { lance: lance, botPas: botPas, avance: avance, ctx: ctx, hote: hote };
+
+  accueil('Choisis un jeu dans la liste.');
+  var jeu = q.get('jeu');
+  if (jeu && (q.get('auto') || AV > 0)) { lance(jeu); if (AV > 0) avance(AV); }
+  else if (jeu) titre.textContent = (MT.games.list.filter(function (g) { return g.id === jeu; })[0] || { name: 'Mini-jeux' }).name;
+})();
+</script>
+</body>
+</html>

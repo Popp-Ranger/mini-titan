@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#12432f">
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+<title>Mini-Titan — planche de sons</title>
+<style>
+  :root { --bg1:#12432f; --bg2:#061f16; --ink:#eafff0; --dim:#9fcdb0; --card:rgba(255,255,255,.07);
+          --line:rgba(255,255,255,.12); --accent:#22c55e; --accent2:#38e8ff; }
+  * { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html, body { margin:0; }
+  body { min-height:100vh; color:var(--ink); background:linear-gradient(180deg,var(--bg1),var(--bg2)) fixed;
+         font:16px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+         padding:max(16px,env(safe-area-inset-top)) 16px max(24px,env(safe-area-inset-bottom)); }
+  main { max-width:560px; margin:0 auto; }
+  h1 { font-size:22px; margin:4px 0 2px; letter-spacing:-.01em; }
+  h2 { font-size:13px; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:var(--dim); margin:22px 0 10px; }
+  p { margin:0; color:var(--dim); font-size:14px; }
+  .bar { display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-top:14px; padding:12px; border-radius:18px;
+         background:var(--card); border:1px solid var(--line); }
+  .state { flex:1 1 150px; font-size:13px; color:var(--dim); min-width:0; }
+  .state b { color:var(--ink); font-weight:600; }
+  .meter { flex:1 1 100%; height:8px; border-radius:99px; background:rgba(0,0,0,.35); overflow:hidden; }
+  .meter i { display:block; height:100%; width:0; border-radius:99px; background:linear-gradient(90deg,var(--accent),var(--accent2)); }
+  .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:10px; }
+  button { font:inherit; color:var(--ink); border:1px solid var(--line); background:var(--card); border-radius:16px;
+           padding:12px 14px; min-height:56px; text-align:left; cursor:pointer; touch-action:manipulation;
+           transition:transform .08s ease, background .15s ease, border-color .15s ease; }
+  button:active { transform:scale(.96); }
+  button.on { background:rgba(34,197,94,.28); border-color:var(--accent); }
+  button b { display:block; font-size:15px; font-weight:650; }
+  button small { display:block; color:var(--dim); font-size:12px; margin-top:1px;
+                 font-family:ui-monospace,Consolas,monospace; }
+  button.pill { min-height:44px; border-radius:99px; padding:8px 16px; text-align:center; font-weight:600; font-size:14px; }
+  button.pill.main { background:var(--accent); border-color:transparent; color:#04210f; }
+  .row { display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+  label.range { display:flex; align-items:center; gap:8px; font-size:13px; color:var(--dim); }
+  input[type=range] { accent-color:var(--accent); width:120px; }
+  .note { margin-top:18px; font-size:12.5px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Planche de sons</h1>
+  <p>Tous les sons de Mini-Titan sont fabriqués en direct (aucun fichier audio). Touchez un bouton pour écouter.</p>
+
+  <div class="bar">
+    <div class="state" id="etat">Audio : <b>en attente du premier geste</b></div>
+    <button class="pill" id="muet" type="button">Son : activé</button>
+    <button class="pill main" id="tout" type="button">Tout écouter</button>
+    <div class="meter" aria-hidden="true"><i id="niveau"></i></div>
+  </div>
+
+  <div class="row" style="margin-top:12px">
+    <label class="range">Volume <input id="vol" type="range" min="0.2" max="1.5" step="0.05" value="1"></label>
+    <label class="range">Hauteur <input id="pitch" type="range" min="0.5" max="2" step="0.05" value="1"></label>
+  </div>
+
+  <div id="sons"></div>
+
+  <h2>Vibrations</h2>
+  <p id="vibInfo"></p>
+  <div class="row" style="margin-top:10px">
+    <button class="pill" id="vibOff" type="button">Vibrations : activées</button>
+  </div>
+  <div class="grid" id="vibs" style="margin-top:10px"></div>
+
+  <p class="note">Sur iPhone, le bouton « silencieux » coupe aussi ces sons, et les vibrations web n'existent pas.</p>
+</main>
+
+<script src="js/sfx.js"></script>
+<script>
+(function () {
+  'use strict';
+  var sfx = MT.sfx;
+  var GROUPES = [
+    ['Interface', ['tap', 'open', 'close', 'ok', 'no', 'pop', 'coin']],
+    ['Soins', ['eat', 'wash', 'heal', 'poop', 'sleep', 'wake']],
+    ['Humeurs', ['happy', 'love', 'sad', 'sick', 'call', 'roar']],
+    ['Grands moments', ['hatch', 'evolve', 'win', 'lose', 'die']]
+  ];
+  var LIBELLES = {
+    tap: 'Touche', open: 'Ouverture', close: 'Fermeture', ok: 'Validation', no: 'Refus', pop: 'Bulle', coin: 'Pièce',
+    eat: 'Repas', wash: 'Toilette', heal: 'Soin', poop: 'Crotte', sleep: 'Dodo', wake: 'Réveil',
+    happy: 'Content', love: 'Câlin', sad: 'Triste', sick: 'Malade', call: 'Appel du monstre', roar: 'Rugissement',
+    hatch: 'Éclosion', evolve: 'Évolution', win: 'Victoire', lose: 'Défaite', die: 'Adieu'
+  };
+  var VIBS = [
+    ['tap', 'Touche'], ['pop', 'Bulle'], ['ok', 'Validation'], ['no', 'Refus'], ['heavy', 'Forte'],
+    ['success', 'Réussite'], ['call', 'Appel'], ['roar', 'Rugissement'], ['sad', 'Triste']
+  ];
+  function $(id) { return document.getElementById(id); }
+  function el(tag, cls, html) { var e = document.createElement(tag); if (cls) e.className = cls; if (html) e.innerHTML = html; return e; }
+  function opts() { return { volume: parseFloat($('vol').value), pitch: parseFloat($('pitch').value) }; }
+
+  var boutons = {};
+  function jouer(nom) {
+    sfx.unlock();
+    var n = sfx.play(nom, opts());
+    var b = boutons[nom];
+    if (b) { b.classList.add('on'); setTimeout(function () { b.classList.remove('on'); }, 220); }
+    brancherNiveau();
+    return n;
+  }
+
+  // les boutons de sons, par famille ; tout nom présent dans MT.sfx.names mais oublié ici va dans « Autres »
+  var vus = {}, racine = $('sons');
+  function famille(titre, noms) {
+    if (!noms.length) return;
+    racine.appendChild(el('h2', '', titre));
+    var g = el('div', 'grid');
+    noms.forEach(function (nom) {
+      vus[nom] = true;
+      var b = el('button', '', '<b>' + (LIBELLES[nom] || nom) + '</b><small>' + nom + '</small>');
+      b.type = 'button';
+      b.addEventListener('click', function () { jouer(nom); });
+      boutons[nom] = b;
+      g.appendChild(b);
+    });
+    racine.appendChild(g);
+  }
+  GROUPES.forEach(function (g) { famille(g[0], g[1].filter(function (n) { return sfx.names.indexOf(n) >= 0; })); });
+  famille('Autres', sfx.names.filter(function (n) { return !vus[n]; }));
+
+  // vibrations
+  $('vibInfo').textContent = MT.haptic.supported
+    ? 'Cet appareil accepte les vibrations (elles ne se sentent que sur un téléphone).'
+    : 'Ce navigateur ne propose pas de vibrations : les boutons ne feront rien.';
+  VIBS.forEach(function (v) {
+    var motif = MT.haptic.presets[v[0]];
+    var b = el('button', '', '<b>' + v[1] + '</b><small>' + v[0] + ' · ' + (motif.join ? motif.join(',') : motif) + ' ms</small>');
+    b.type = 'button';
+    b.addEventListener('click', function () { MT.haptic(v[0]); });
+    $('vibs').appendChild(b);
+  });
+  $('vibOff').addEventListener('click', function () {
+    sfx.hapticsOff = !sfx.hapticsOff;
+    this.textContent = 'Vibrations : ' + (sfx.hapticsOff ? 'coupées' : 'activées');
+    if (!sfx.hapticsOff) MT.haptic('ok');
+  });
+
+  // barre du haut
+  $('muet').addEventListener('click', function () {
+    sfx.unlock();
+    sfx.mute(!sfx.isMuted());
+    this.textContent = 'Son : ' + (sfx.isMuted() ? 'coupé' : 'activé');
+    if (!sfx.isMuted()) sfx.play('ok');
+  });
+  var file = null;
+  $('tout').addEventListener('click', function () {
+    sfx.unlock();
+    if (file) { clearTimeout(file); file = null; this.textContent = 'Tout écouter'; return; }
+    var i = 0, btn = this;
+    btn.textContent = 'Arrêter';
+    (function suivant() {
+      if (i >= sfx.names.length) { file = null; btn.textContent = 'Tout écouter'; return; }
+      var nom = sfx.names[i++];
+      jouer(nom);
+      file = setTimeout(suivant, (nom === 'die' || nom === 'evolve') ? 2200 : 1100);
+    })();
+  });
+
+  // état + indicateur de niveau (branché sur la sortie du moteur)
+  var ana = null, tampon = null;
+  function brancherNiveau() {
+    if (ana) return;
+    try {
+      var d = sfx.debug();
+      if (!d.ctx || !d.out) return;
+      ana = d.ctx.createAnalyser();
+      ana.fftSize = 1024;
+      tampon = new Float32Array(ana.fftSize);
+      d.out.connect(ana);
+    } catch (e) { ana = null; }
+  }
+  window.MTplanche = {
+    /* crête instantanée en sortie (0..1), pour les mesures */
+    crete: function () {
+      if (!ana) brancherNiveau();
+      if (!ana || !ana.getFloatTimeDomainData) return 0;
+      ana.getFloatTimeDomainData(tampon);
+      var m = 0;
+      for (var i = 0; i < tampon.length; i++) { var a = Math.abs(tampon[i]); if (a > m) m = a; }
+      return m;
+    }
+  };
+  var affiche = 0;
+  var ETATS = { none: 'en attente du premier geste', running: 'en marche', suspended: 'en pause', interrupted: 'interrompu', closed: 'fermé' };
+  (function boucle() {
+    var d = sfx.debug();
+    $('etat').innerHTML = d.supported
+      ? 'Audio : <b>' + (ETATS[d.state] || d.state) + '</b> · ' + d.voices + ' voix jouées'
+      : 'Audio : <b>WebAudio absent de ce navigateur</b>';
+    var c = window.MTplanche.crete();
+    affiche = Math.max(c, affiche * 0.88);
+    $('niveau').style.width = Math.min(100, affiche * 300) + '%';
+    (window.requestAnimationFrame || function (f) { setTimeout(f, 50); })(boucle);
+  })();
+})();
+</script>
+</body>
+</html>

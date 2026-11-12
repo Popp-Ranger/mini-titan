@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Mini-Titan</title>
+<meta name="description" content="Adopte un petit monstre à plaques dorsales : nourris-le, lave-le, joue avec lui et regarde-le grandir.">
+<meta name="theme-color" content="#12432f">
+<meta name="color-scheme" content="dark light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Mini-Titan">
+<meta name="format-detection" content="telephone=no">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+<!-- Fond flou aux couleurs du look (visible sur ordinateur, autour de la colonne) -->
+<div class="backdrop" aria-hidden="true"></div>
+
+<div class="app" id="app">
+  <main class="views" id="views">
+
+    <!-- ===================== Onglet Maison ===================== -->
+    <section class="view view-home on" id="v-maison" aria-label="Maison">
+      <div class="stage" id="stage">
+        <div class="stage-scene" id="scene" aria-hidden="true"></div>
+        <div class="stage-mon" id="mon"></div>
+        <button class="mon-hit" id="monHit" type="button" aria-label="Caresser"></button>
+        <div class="poops" id="poops"></div>
+        <div class="veil" id="veil" aria-hidden="true"></div>
+        <div class="zzz" id="zzz" aria-hidden="true"></div>
+        <div class="need" id="need" role="status"></div>
+        <div class="hint" id="hint"></div>
+        <div class="fx" id="fx" aria-hidden="true"></div>
+
+        <header class="topbar" id="topbar">
+          <button class="idcard glass" id="idcard" type="button" aria-label="Voir le profil">
+            <span class="nm" id="tbName">Titan</span>
+            <span class="sub" id="tbSub"></span>
+            <span class="grow" aria-hidden="true"><i id="tbGrow"></i></span>
+          </button>
+          <div class="topright">
+            <button class="clock glass" id="clock" type="button" aria-label="Heure du jeu"><span class="clock-ic" id="clockIc"></span><span id="clockTx">12:00</span><b class="spd" id="clockSpd"></b></button>
+            <button class="bell glass" id="bell" type="button" aria-label="Appels"><span id="bellIc"></span><i class="bell-dot"></i></button>
+          </div>
+        </header>
+
+        <div class="gauges glass" id="gauges"></div>
+      </div>
+      <nav class="dock" id="dock" aria-label="Actions"></nav>
+    </section>
+
+    <!-- ===================== Autres onglets ===================== -->
+    <section class="view scroll" id="v-profil" aria-label="Profil"></section>
+    <section class="view scroll" id="v-looks" aria-label="Looks"></section>
+    <section class="view scroll" id="v-reglages" aria-label="Réglages"></section>
+  </main>
+
+  <nav class="tabbar" id="tabbar" aria-label="Navigation"></nav>
+
+  <!-- Couches au-dessus : feuilles, écrans pleins, messages -->
+  <div class="layer" id="sheets"></div>
+  <div class="layer" id="fulls"></div>
+  <div class="toasts" id="toasts" role="status" aria-live="polite"></div>
+</div>
+
+<noscript><p style="position:fixed;inset:0;display:grid;place-items:center;margin:0;padding:24px;text-align:center;color:#fff;background:#12432f;font:16px sans-serif">Mini-Titan a besoin de JavaScript pour fonctionner.</p></noscript>
+
+<script src="js/skins.js"></script>
+<script src="js/core.js"></script>
+<script src="js/art.js"></script>
+<script src="js/scenes.js"></script>
+<script src="js/sfx.js"></script>
+<script src="js/games.js" onerror="void 0"></script>
+<script src="js/ui.js"></script>
+<script>
+/* Service worker : seulement en ligne (https), jamais en local pour ne pas gêner les essais. */
+if (location.protocol === 'https:' && 'serviceWorker' in navigator) {
+  window.addEventListener('load', function () {
+    navigator.serviceWorker.register('sw.js').catch(function () {});
+  });
+}
+</script>
+</body>
+</html>

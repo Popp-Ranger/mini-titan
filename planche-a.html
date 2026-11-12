@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Mini-Titan — planche A (jouet vinyle 3D)</title>
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;font:13px/1.35 system-ui,-apple-system,"Segoe UI",sans-serif;background:#e9edf2;color:#1d2430}
+  header{padding:10px 16px;background:#fff;border-bottom:1px solid #d5dbe4;display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+  header h1{font-size:16px;margin:0}
+  header a{color:#2563eb;text-decoration:none;margin-right:8px}
+  .band{padding:14px 16px 20px}
+  .band.clair{background:#eef1f5;color:#1d2430}
+  .band.sombre{background:#141826;color:#dfe6f5}
+  .band h2{font-size:14px;margin:0 0 10px;font-weight:700}
+  .grid{display:grid;grid-template-columns:86px repeat(6,minmax(0,1fr));gap:4px;align-items:end;max-width:1100px}
+  .grid .hd{font-weight:700;text-align:center;font-size:12px;opacity:.75;padding-bottom:4px}
+  .grid .lb{font-weight:700;align-self:center;font-size:12px}
+  .cell{position:relative}
+  .cell svg{width:100%;height:auto}
+  .row{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+  .row9{display:grid;grid-template-columns:repeat(9,minmax(0,1fr));gap:4px;margin-bottom:10px;max-width:1400px}
+  .row9 .card{width:auto}
+  .card{width:150px;text-align:center}
+  .card.sm{width:120px}
+  .card svg{width:100%;height:auto}
+  .card span{display:block;font-size:11px;opacity:.75}
+  .bigwrap{display:flex;gap:18px;align-items:flex-start;flex-wrap:wrap}
+  .stage{width:500px;max-width:100%;border-radius:24px;background:rgba(127,127,127,.12)}
+  .stage svg{width:100%;height:auto}
+  .ctl{display:flex;flex-direction:column;gap:8px;min-width:200px}
+  .ctl button,.ctl select{font:inherit;padding:8px 12px;border-radius:10px;border:1px solid #9aa5b8;background:#fff;color:#1d2430;cursor:pointer}
+  .ctl label{font-size:12px;opacity:.8}
+</style>
+</head>
+<body>
+<header>
+  <h1>Planche A — Jouet vinyle 3D</h1>
+  <nav id="nav"></nav>
+</header>
+<div id="root"></div>
+<script src="js/skins.js"></script>
+<script src="js/art-a.js"></script>
+<script>
+(function () {
+  var art = MT.arts.a, skins = MT.SKINS, q = new URLSearchParams(location.search);
+  var st = document.createElement('style'); st.textContent = art.css; document.head.appendChild(st);
+  var sel = Math.max(0, Math.min(skins.length - 1, parseInt(q.get('skin'), 10) || 0));
+  var only = q.get('only') || '', bgOnly = q.get('bg') || '', n = 0;
+  var MOODS = [['neutral', 'neutre'], ['happy', 'content'], ['love', 'amoureux'], ['sad', 'triste'], ['angry', 'en colère'], ['sick', 'malade'], ['sleep', 'dort'], ['eat', 'mange'], ['surprised', 'surpris']];
+  var COLS = [['Œuf', { stage: 0 }], ['Bébé', { stage: 1 }], ['Enfant', { stage: 2 }], ['Ado', { stage: 3 }], ['Adulte titan', { stage: 4, form: 'titan' }], ['Adulte grognon', { stage: 4, form: 'grognon' }]];
+  var ACTIONS = [['mt-act-jump', 'Saut de joie'], ['mt-act-chomp', 'Mâcher'], ['mt-act-no', 'Refuser (non)'], ['mt-act-wiggle', 'Se tortiller'], ['mt-act-hop', 'Sautiller']];
+
+  function mon(skin, o) { var p = {}; for (var k in o) p[k] = o[k]; p.uid = 'p' + (n++); if (!p.mood) p.mood = 'neutral'; return art.monster(skin, p); }
+  function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;'); }
+
+  /* navigation */
+  var nav = '';
+  skins.forEach(function (s, i) { nav += '<a href="?skin=' + i + (only ? '&only=' + only : '') + '"' + (i === sel ? ' style="font-weight:700"' : '') + '>' + i + ' ' + esc(s.name) + '</a>'; });
+  nav += ' | <a href="?skin=' + sel + '">tout</a><a href="?skin=' + sel + '&only=grid">grille</a><a href="?skin=' + sel + '&only=moods">humeurs</a><a href="?skin=' + sel + '&only=big">grand</a>';
+  document.getElementById('nav').innerHTML = nav;
+
+  function grid() {
+    var h = '<h2>1. Les 10 looks × 6 stades (humeur neutre)</h2><div class="grid"><div></div>';
+    COLS.forEach(function (c) { h += '<div class="hd">' + c[0] + '</div>'; });
+    skins.forEach(function (s) {
+      h += '<div class="lb">' + esc(s.name) + '</div>';
+      COLS.forEach(function (c) { h += '<div class="cell">' + mon(s, c[1]) + '</div>'; });
+    });
+    return h + '</div>';
+  }
+  function moods() {
+    var s = skins[sel], h = '<h2>2. Humeurs — look « ' + esc(s.name) + ' »</h2>';
+    [['Bébé', { stage: 1 }], ['Adulte titan', { stage: 4, form: 'titan' }], ['Enfant', { stage: 2 }], ['Adulte grognon', { stage: 4, form: 'grognon' }]].forEach(function (r) {
+      h += '<div class="row9">';
+      MOODS.forEach(function (m) { var o = { mood: m[0] }; for (var k in r[1]) o[k] = r[1][k]; h += '<div class="card">' + mon(s, o) + '<span>' + r[0] + ' — ' + m[1] + '</span></div>'; });
+      h += '</div>';
+    });
+    h += '<div class="row">';
+    [1, 2, 3, 4].forEach(function (g) { h += '<div class="card">' + mon(s, { stage: g, dead: true }) + '<span>Fantôme (stade ' + g + ')</span></div>'; });
+    [0, 1, 2, 3].forEach(function (c) { h += '<div class="card">' + mon(s, { stage: 0, crack: c }) + '<span>Œuf — fissure ' + c + '</span></div>'; });
+    return h + '</div>';
+  }
+  function big(id) {
+    var h = '<h2>3. Grand format et actions</h2><div class="bigwrap"><div class="stage" id="stage' + id + '"></div><div class="ctl" data-for="stage' + id + '">';
+    h += '<label>Stade</label><select data-k="col">';
+    COLS.forEach(function (c, i) { h += '<option value="' + i + '"' + (i === bigCol ? ' selected' : '') + '>' + c[0] + '</option>'; });
+    h += '<option value="6">Fantôme</option></select><label>Humeur</label><select data-k="mood">';
+    MOODS.forEach(function (m) { h += '<option value="' + m[0] + '"' + (m[0] === bigMood ? ' selected' : '') + '>' + m[1] + '</option>'; });
+    h += '</select><label>Actions (classe posée 1,2 s)</label>';
+    ACTIONS.forEach(function (a) { h += '<button data-act="' + a[0] + '">' + a[1] + '</button>'; });
+    return h + '</div></div>';
+  }
+  var bigCol = q.get('col') == null ? 4 : parseInt(q.get('col'), 10) || 0, bigMood = q.get('mood') || 'neutral';
+  function renderBig(stage, ctl) {
+    var col = parseInt(ctl.querySelector('[data-k=col]').value, 10), mood = ctl.querySelector('[data-k=mood]').value, o;
+    if (col === 6) o = { stage: 4, dead: true }; else { o = { mood: mood }; for (var k in COLS[col][1]) o[k] = COLS[col][1][k]; }
+    stage.innerHTML = mon(skins[sel], o);
+  }
+
+  var root = document.getElementById('root'), html = '';
+  ['clair', 'sombre'].forEach(function (bg) {
+    if (bgOnly && bgOnly !== bg) return;
+    html += '<section class="band ' + bg + '">';
+    if (!only || only === 'grid') html += grid();
+    if (!only || only === 'moods') html += moods();
+    if (!only || only === 'big') html += big(bg);
+    html += '</section>';
+  });
+  root.innerHTML = html;
+
+  Array.prototype.forEach.call(document.querySelectorAll('.ctl'), function (ctl) {
+    var stage = document.getElementById(ctl.getAttribute('data-for'));
+    renderBig(stage, ctl);
+    ctl.addEventListener('change', function () { renderBig(stage, ctl); });
+    ctl.addEventListener('click', function (ev) {
+      var a = ev.target.getAttribute && ev.target.getAttribute('data-act'); if (!a) return;
+      ACTIONS.forEach(function (x) { stage.classList.remove(x[0]); });
+      void stage.offsetWidth; stage.classList.add(a);
+      clearTimeout(stage._t); stage._t = setTimeout(function () { stage.classList.remove(a); }, 1200);
+    });
+  });
+  /* aides au contrôle (console) : vue libre, arrêt sur image, poids */
+  window.__vue = function (items, size, bg, act) {
+    root.innerHTML = '<section class="band ' + (bg || 'clair') + '"><div class="row">' + items.map(function (it) {
+      return '<div class="card' + (act ? ' ' + act : '') + '" style="width:' + (size || 240) + 'px">' + mon(skins[it[0]], it[1]) + '</div>';
+    }).join('') + '</div></section>';
+  };
+  window.__fige = function (t) {
+    var f = document.getElementById('fige') || document.head.appendChild(document.createElement('style')); f.id = 'fige';
+    f.textContent = t == null ? '' : '.mt-mon *{animation-play-state:paused!important;animation-delay:-' + t + 's!important}';
+  };
+  /* mêmes aides par l'URL : ?vue=look:stade:forme:humeur:option;…&taille=380&fige=0.4&act=mt-act-jump&bg=sombre
+     (option : dead, c1, c2, c3) — ex. ?vue=0:4:titan:happy;3:4:grognon;2:0:::c3;5:2:::dead */
+  if (q.get('vue')) {
+    document.querySelector('header').style.display = 'none';
+    window.__vue(q.get('vue').split(';').map(function (it) {
+      var p = it.split(':'), o = { stage: parseInt(p[1], 10) || 0, form: p[2] || '', mood: p[3] || 'neutral' };
+      if (p[4] === 'dead') o.dead = true; else if (p[4]) o.crack = parseInt(p[4].slice(1), 10) || 0;
+      return [Math.max(0, Math.min(skins.length - 1, parseInt(p[0], 10) || 0)), o];
+    }), parseInt(q.get('taille'), 10) || 240, bgOnly || 'clair', q.get('act') || '');
+  }
+  if (q.get('fige') != null) window.__fige(parseFloat(q.get('fige')) || 0);
+  window.__poids = function () {
+    var r = {}; COLS.forEach(function (c) { var o = { mood: 'neutral', uid: 'x' }; for (var k in c[1]) o[k] = c[1][k]; r[c[0]] = art.monster(skins[sel], o).length; }); return r;
+  };
+})();
+</script>
+</body>
+</html>
