@@ -1,6 +1,6 @@
 /* Mini-Titan — service worker (appli installable, jouable hors ligne).
    Changer VERSION à chaque publication : l'ancien cache est supprimé à l'activation. */
-var VERSION = '2.3.0';
+var VERSION = '2.4.0';
 var PREFIX = 'mini-titan-';
 var CACHE = PREFIX + VERSION;
 
@@ -20,6 +20,10 @@ var PRECACHE = [
   'icons/icon-512.png',
   'icons/apple-touch-icon.png',
   'icons/icon-maskable-512.png',
+  'sons/rugir-1.wav',
+  'sons/rugir-2.wav',
+  'sons/rugir-3.wav',
+  'sons/rugir-4.wav',
   'icons/icon.svg',
   'classique.html'
 ];

@@ -3,7 +3,7 @@
 param([int]$Port = 8765)
 $root = Split-Path -Parent $MyInvocation.MyCommand.Path
 $types = @{ '.html'='text/html; charset=utf-8'; '.js'='text/javascript; charset=utf-8'; '.css'='text/css; charset=utf-8';
-  '.json'='application/json'; '.webmanifest'='application/manifest+json'; '.svg'='image/svg+xml'; '.png'='image/png';
+  '.json'='application/json'; '.webmanifest'='application/manifest+json'; '.svg'='image/svg+xml'; '.png'='image/png'; '.wav'='audio/wav';
   '.jpg'='image/jpeg'; '.ico'='image/x-icon'; '.txt'='text/plain; charset=utf-8' }
 $l = New-Object System.Net.HttpListener
 $l.Prefixes.Add("http://localhost:$Port/")

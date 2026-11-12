@@ -553,14 +553,32 @@
     else { sfx('sleep'); toast('Lumière éteinte. Bonne nuit !'); }
   }
   /* Rugir : le monstre pousse son cri, l'écran tremble. Plus il est grand, plus le cri est grave. */
-  var lastRoar = 0, ROARS = ['Couic !', 'Rrrr !', 'Graou !', 'GRAOUUU !', 'GRRRAAAOUUU !'];
+  /* Quatre vrais rugissements enregistrés (sons/rugir-N.wav), tirés au hasard sans répéter le précédent.
+     Plus le monstre est jeune, plus le cri est joué vite, donc aigu. Si le fichier ne peut pas être lu, on retombe sur le son de synthèse. */
+  var ROAR_FILES = ['sons/rugir-1.wav', 'sons/rugir-2.wav', 'sons/rugir-3.wav', 'sons/rugir-4.wav'], roarAudio = [], roarLast = -1, roarNow = null;
+  function synthRoar() { sfx('roar', { pitch: [1, 1.9, 1.45, 1.1, 0.8][S.stage] || 1, volume: 0.7 + S.stage * 0.15 }); }
+  function playRoar() {
+    if (S.mute) return;
+    var i; do { i = Math.floor(Math.random() * ROAR_FILES.length); } while (i === roarLast && ROAR_FILES.length > 1);
+    roarLast = i;
+    try {
+      var a = roarAudio[i] || (roarAudio[i] = new Audio(ROAR_FILES[i]));
+      if (roarNow && roarNow !== a) roarNow.pause();
+      roarNow = a; a.currentTime = 0;
+      a.preservesPitch = false; a.mozPreservesPitch = false; a.webkitPreservesPitch = false;
+      a.playbackRate = [1, 1.7, 1.35, 1.12, 1][S.stage] || 1;
+      a.volume = Math.min(1, 0.6 + S.stage * 0.1);
+      var p = a.play(); if (p && p.catch) p.catch(synthRoar);
+    } catch (e) { synthRoar(); }
+  }
+  var lastRoar = 0, ROARS =['Couic !', 'Rrrr !', 'Graou !', 'GRAOUUU !', 'GRRRAAAOUUU !'];
   function scold() {
     if (Date.now() - lastRoar < 1300) return;                         // le rugissement précédent joue encore
     var r = core.roar(); if (!r.ok) return refuse(r.reason);
     lastRoar = Date.now();
-    sfx('roar', { pitch: [1, 1.9, 1.45, 1.1, 0.8][S.stage] || 1, volume: 0.7 + S.stage * 0.15 });
+    playRoar();
     buzz(S.stage >= 3 ? [40, 30, 90] : [25, 25, 40]);
-    setTempMood('eat', 1100); act('mt-act-hop', 900);
+    setTempMood('eat', 1250); act('mt-act-hop', 900);
     var st = $('stage'); st.classList.remove('roaring'); void st.offsetWidth; st.classList.add('roaring');
     later(function () { st.classList.remove('roaring'); }, 700);
     floatAt(G.cx + G.hitW * 0.2, G.headY + G.monH * 0.1, '', ROARS[S.stage] || 'Graou !');
