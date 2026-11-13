@@ -679,7 +679,10 @@
       var swc = navigator.serviceWorker;
       if (!swc || !swc.getRegistration) return Promise.resolve(direct());
       return swc.getRegistration().then(function (r) {
-        return r && r.showNotification ? r.showNotification('Mini-Titan', opts).then(function () { return true; }) : direct();
+        if (!r || !r.showNotification) return direct();
+        // un service worker tout juste installé n'est pas encore « actif » : on attend qu'il le soit (3 s au plus)
+        var pret = r.active ? Promise.resolve(r) : Promise.race([swc.ready, new Promise(function (ok) { setTimeout(function () { ok(r); }, 3000); })]);
+        return pret.then(function (reg) { return reg.showNotification('Mini-Titan', opts); }).then(function () { return true; }, function () { try { return direct(); } catch (e) { return false; } });
       }).catch(function () { return false; });
     } catch (e) { return Promise.resolve(false); }
   }
