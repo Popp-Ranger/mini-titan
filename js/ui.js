@@ -988,6 +988,20 @@
     ['art', 'scenes', 'games'].forEach(function (m) { if (MT[m] && MT[m].css) { var s = document.createElement('style'); s.textContent = MT[m].css; document.head.appendChild(s); } });
     syncSfx();
     window.addEventListener('pointerdown', function () { if (MT.sfx) MT.sfx.unlock(); }, { passive: true });
+    /* Téléphone : ni zoom au double tap, ni zoom au pincement (Safari ignore en partie les réglages CSS et la balise viewport).
+       Le second tap rapproché est annulé pour le navigateur, mais on déclenche nous-mêmes son clic : tapoter vite l'œuf reste possible. */
+    var lastTap = 0;
+    document.addEventListener('touchend', function (e) {
+      var now = Date.now(), t = e.target, fast = now - lastTap < 350;
+      lastTap = now;
+      if (!fast || e.touches.length || !e.cancelable) return;
+      if (t && t.closest && t.closest('input, textarea, .wash, .mtg-root, .carousel, .sheet-top')) return;
+      e.preventDefault();
+      var b = t && t.closest && t.closest('button, a, [data-b]'); if (b) b.click();
+    }, { passive: false });
+    ['gesturestart', 'gesturechange', 'gestureend'].forEach(function (g) { document.addEventListener(g, function (e) { e.preventDefault(); }, { passive: false }); });
+    document.addEventListener('touchmove', function (e) { if (e.touches.length > 1 && e.cancelable) e.preventDefault(); }, { passive: false });
+    document.addEventListener('dblclick', function (e) { e.preventDefault(); });
     window.addEventListener('beforeinstallprompt', function (e) { e.preventDefault(); installEvt = e; refreshTab(true); });
     applyTheme(core.skin()); buildHome(); bindCore(); go('maison');
     core.tick(); update();

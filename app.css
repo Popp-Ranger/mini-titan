@@ -591,3 +591,7 @@ button.set:active, a.set:active { background: var(--fill); }
 .carousel { cursor: grab; }
 .carousel.dragging { cursor: grabbing; scroll-snap-type: none; }
 .carousel.dragging .lcard { pointer-events: none; }
+
+/* pas de zoom au double tap ni au pincement : c est une appli, pas une page */
+html, body, .app, .app * { touch-action: manipulation; }
+.wash, .sheet-top, .mtg-root [style*="touch-action"] { touch-action: none; }
