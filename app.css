@@ -595,3 +595,43 @@ button.set:active, a.set:active { background: var(--fill); }
 /* pas de zoom au double tap ni au pincement : c est une appli, pas une page */
 html, body, .app, .app * { touch-action: manipulation; }
 .wash, .sheet-top, .mtg-root [style*="touch-action"] { touch-action: none; }
+
+/* ------------------------------------------------------------------ album et succès */
+.tabbar { grid-template-columns: repeat(5, 1fr); }
+.tab .pill { width: 52px; }
+.card > h3 .cnt { float: right; letter-spacing: 0; color: var(--ink); }
+.achs { display: grid; gap: 8px; }
+.ach { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 18px; background: var(--fill); opacity: .62; }
+.ach .ach-ic { width: 38px; height: 38px; flex: none; filter: grayscale(1) brightness(.7); opacity: .6; }
+.ach .ach-tx { min-width: 0; display: flex; flex-direction: column; }
+.ach b { font-size: 15.5px; font-weight: 800; }
+.ach .ach-tx > span { font-size: 13.5px; line-height: 1.3; color: var(--ink2); }
+.ach small { font-size: 12px; font-weight: 600; color: var(--ink3); margin-top: 2px; }
+.ach.ok { opacity: 1; background: var(--fill2); box-shadow: inset 0 0 0 2px var(--hi); }
+.ach.ok .ach-ic { filter: none; opacity: 1; }
+.alrow + .alrow { margin-top: 14px; }
+.alrow .rn { font-size: 15px; font-weight: 800; margin: 0 2px 6px; }
+.alf { display: grid; grid-template-columns: repeat(6, 1fr); gap: 5px; }
+.alc { position: relative; aspect-ratio: 5 / 6; border-radius: 12px; overflow: hidden; isolation: isolate; box-shadow: inset 0 0 0 1px var(--line); }
+.alm { position: absolute; aspect-ratio: 1; pointer-events: none; }
+.alm .mt-mon { width: 100%; height: 100%; }
+.alm .mt-mon * { animation: none !important; }
+.aln { position: absolute; left: 0; right: 0; bottom: 0; padding: 8px 0 3px; text-align: center; font-size: 10.5px; font-weight: 800; color: #fff; background: linear-gradient(transparent, rgba(0, 0, 0, .62)); }
+.alc.lock .alm { filter: brightness(0); opacity: .38; }
+.alc.lock { filter: saturate(.35); }
+.alps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.alp { display: flex; flex-direction: column; align-items: center; padding: 8px 2px 8px; border-radius: 16px; background: var(--fill); text-align: center; }
+.alp .pic { width: 46px; height: 46px; }
+.alp b { font-size: 12.5px; font-weight: 800; margin-top: 2px; }
+.alp small { font-size: 11.5px; color: var(--ink2); }
+.alp.lock .pic { filter: brightness(0); opacity: .3; }
+.ach-banner {
+  position: absolute; z-index: 70; left: 50%; top: calc(var(--sat) + 10px); display: flex; align-items: center; gap: 10px; max-width: calc(100% - 24px);
+  padding: 9px 20px 9px 10px; border-radius: 28px; background: #ffe14d; color: #3a2a00; box-shadow: 0 12px 30px rgba(0, 0, 0, .4);
+  transform: translate(-50%, -180%); transition: transform .42s cubic-bezier(.3, 1.4, .5, 1); pointer-events: none; white-space: nowrap;
+}
+.ach-banner.show { transform: translate(-50%, 0); }
+.ach-banner .ach-ic { width: 38px; height: 38px; flex: none; }
+.ach-banner .ach-tx { display: flex; flex-direction: column; min-width: 0; }
+.ach-banner b { font-size: 11.5px; font-weight: 800; letter-spacing: .07em; text-transform: uppercase; opacity: .7; }
+.ach-banner .ach-tx > span { font-size: 16px; font-weight: 800; overflow: hidden; text-overflow: ellipsis; }

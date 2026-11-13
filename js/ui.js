@@ -131,7 +131,7 @@
     { a: 'feed', lb: 'Nourrir', ic: 'food' }, { a: 'play', lb: 'Jouer', ic: 'play' }, { a: 'wash', lb: 'Laver', ic: 'wash' },
     { a: 'heal', lb: 'Soigner', ic: 'heal' }, { a: 'light', lb: 'Lumière', ic: 'light' }, { a: 'scold', lb: 'Rugir', ic: 'scold' }
   ];
-  var TABS = [{ t: 'maison', lb: 'Maison', ic: 'home' }, { t: 'profil', lb: 'Profil', ic: 'user' }, { t: 'looks', lb: 'Looks', ic: 'palette' }, { t: 'reglages', lb: 'Réglages', ic: 'gear' }];
+  var TABS = [{ t: 'maison', lb: 'Maison', ic: 'home' }, { t: 'profil', lb: 'Profil', ic: 'user' }, { t: 'looks', lb: 'Looks', ic: 'palette' }, { t: 'album', lb: 'Album', ic: 'star' }, { t: 'reglages', lb: 'Réglages', ic: 'gear' }];
   var NEED_PROP = { malade: 'crane', lumiere: 'ampoule', faim: 'steak', humeur: 'ballon', caprice: 'megaphone', crotte: 'crotte', sale: 'savon', fatigue: 'zzz' };
   var NEED_ACT = { malade: 'heal', lumiere: 'light', faim: 'feed', humeur: 'play', caprice: 'scold', sale: 'wash', crotte: 'wash', fatigue: 'light' };
   var CIRC = 2 * Math.PI * 20;
@@ -469,7 +469,7 @@
     Promise.resolve(p).then(function (res) {
       res = res || { quit: true };
       if (res.quit) { f.close(); return; }
-      var out = core.playResult({ win: !!res.win, score: res.score || 0 });
+      var out = core.playResult({ win: !!res.win, score: res.score || 0, id: g.id });
       if (!out.ok) { f.close(); return; }                             // il n'est plus là pour fêter ça
       showResult(g, res, f, out);
     }, function () { f.close(); });
@@ -728,7 +728,7 @@
 
   /* ------------------------------------------------------------------ 8. onglets */
   function go(t) {
-    if (['maison', 'profil', 'looks', 'reglages'].indexOf(t) < 0) t = 'maison';
+    if (['maison', 'profil', 'looks', 'album', 'reglages'].indexOf(t) < 0) t = 'maison';
     if (washing) endWash();
     var prev = tab; tab = t;
     TABS.forEach(function (x) { $('v-' + x.t).classList.toggle('on', x.t === t); });
@@ -743,7 +743,7 @@
     if (!force && Date.now() - lastTabDraw < 15000) return;
     if (document.activeElement && document.activeElement.tagName === 'INPUT') return;
     lastTabDraw = Date.now();
-    if (tab === 'profil') drawProfil(); else if (tab === 'looks') drawLooks(); else drawReglages();
+    if (tab === 'profil') drawProfil(); else if (tab === 'looks') drawLooks(); else if (tab === 'album') MT.album.render($('v-album')); else drawReglages();
   }
 
   function drawProfil() {
@@ -977,7 +977,7 @@
     if (q.demo) { var d = {}, src = DEMO[q.demo] || DEMO.enfant; for (var k in src) d[k] = src[k]; if (q.look != null) d.skin = clamp(+q.look || 0, 0, MT.SKINS.length - 1); S = core.demo(d); }
     else S = core.load();
     ['art', 'scenes', 'games'].forEach(function (m) { if (MT[m] && MT[m].css) { var s = document.createElement('style'); s.textContent = MT[m].css; document.head.appendChild(s); } });
-    syncSfx();
+    syncSfx(); if (MT.album) MT.album.start();
     window.addEventListener('pointerdown', function () { if (MT.sfx) MT.sfx.unlock(); }, { passive: true });
     /* Téléphone : ni zoom au double tap, ni zoom au pincement (Safari ignore en partie les réglages CSS et la balise viewport).
        Le second tap rapproché est annulé pour le navigateur, mais on déclenche nous-mêmes son clic : tapoter vite l'œuf reste possible. */
@@ -1007,7 +1007,7 @@
     bindBack();
     if (!S.chosen) showOnboarding(); else if (S.dead) showMemorial();
     var e = q.ecran;
-    if (e === 'profil' || e === 'looks' || e === 'reglages') go(e); else if (e) later(function () { open(e); }, 60);
+    if (e === 'profil' || e === 'looks' || e === 'album' || e === 'reglages') go(e); else if (e) later(function () { open(e); }, 60);
     if (q.etape && onbNow) onbNow.show(clamp(+q.etape || 0, 0, 2));        // essais : &etape=1 (looks) ou 2 (nom) sur l'accueil
   }
   /* Bouton Retour (Android) : il ferme ce qui est ouvert au lieu de quitter l'appli. Une entrée « sentinelle » est posée dans

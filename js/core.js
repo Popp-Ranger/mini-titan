@@ -332,7 +332,7 @@ window.MT = window.MT || {};
   }
   function cleanPoop() {
     if (S.dead || S.poops <= 0) return no('Rien à nettoyer');
-    S.poops--; S.hygiene = clamp(S.hygiene + 4);
+    S.poops--; S.hygiene = clamp(S.hygiene + 4); emit('cleaned', {});
     if (S.poops === 0) S.dirtyT = 0;
     return done({ ok: true, left: S.poops });
   }
@@ -361,7 +361,7 @@ window.MT = window.MT || {};
   function roar() {
     var b = blocked(); if (b) return no(b);
     if (S.asleep) return no('Chut… il dort');
-    S.stats.scolds++;                       // compteur de rugissements (ancien nom gardé pour les sauvegardes)
+    emit('roar', {}); S.stats.scolds++;     // compteur de rugissements (ancien nom gardé pour les sauvegardes)
     var now = Date.now(), gain = 0;
     if (!(now - S.roarAt < 10000 && now >= S.roarAt)) { S.roarAt = now; gain = 1; S.happy = clamp(S.happy + gain); }
     return done({ ok: true, gain: gain, stage: S.stage });
@@ -370,7 +370,7 @@ window.MT = window.MT || {};
     if (S.dead || S.stage === 0 || S.asleep) return no('');
     var now = Date.now();
     if (now >= S.petAt && now - S.petAt < 4000) return { ok: true, gain: 0 };   // un horodatage dans le futur (horloge reculée) ne bloque rien
-    S.petAt = now; S.stats.pets++;
+    S.petAt = now; S.stats.pets++; emit('pet', {});
     S.happy = clamp(S.happy + 1.5);
     return done({ ok: true, gain: 1.5 });
   }
@@ -410,11 +410,12 @@ window.MT = window.MT || {};
   /* Remise à zéro : tout est effacé sauf les réglages de l'appareil (sons, vibrations, notifications). */
   function wipe() {
     var o = S;
-    S = fresh(); S.rev = o.rev; keepPrefs(o);
+    S = fresh(); S.rev = o.rev; keepPrefs(o); emit('wiped', {});
     api.S = S; save(); emit('newegg', {}); emit('change', {});
   }
 
   var api = MT.core = {
+    isDemo: function () { return noSave; },
     S: null, STAGES: STAGES, FOODS: FOODS, FORMS: FORMS, CALL_DELAY: CALL_DELAY, EGG_TAPS: EGG_TAPS, TITAN_MAX_MISTAKES: TITAN_MAX_MISTAKES,
     KEY: KEY, load: load, save: save, sync: sync, demo: demo, tick: tick, on: on,
     needs: needs, attention: attention, mood: mood, critical: critical, isNight: isNight, isSleepTime: isSleepTime,
