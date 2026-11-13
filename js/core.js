@@ -243,6 +243,7 @@ window.MT = window.MT || {};
   /* Avance le temps. À appeler régulièrement (4 fois par seconde suffit). */
   function tick(now) {
     now = now || Date.now();
+    if (S.speed !== 1) S.speed = 1;       // anciennes sauvegardes en ×20 ou ×120 : retour au temps réel
     if (now - S.last > SLOW_TICK) sync();          // long silence : une autre instance a peut-être joué entre-temps
     if (!S.chosen) { S.last = now; S.simT = now; S.acc = 0; return 0; }   // accueil pas terminé : le temps ne démarre qu'à « Faire éclore »
     var dt = now - S.last; S.last = now;
@@ -389,7 +390,7 @@ window.MT = window.MT || {};
     S.skin = i; emit('skin', { skin: i }); return done({ ok: true });
   }
   function setSpeed(n) {
-    S.speed = [1, 20, 120].indexOf(n) >= 0 ? n : 1;
+    S.speed = 1;                          // une seule vitesse pour tout le monde : le temps réel
     if (S.speed === 1) S.simT = Date.now();
     return done({ ok: true, speed: S.speed });
   }

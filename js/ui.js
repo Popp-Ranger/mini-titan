@@ -819,9 +819,6 @@
       (installEvt ? '<button class="set" type="button" id="setInstall">' + ic('install') + '<div class="tx"><span class="nm">Installer l\'appli</span><span class="ds">Ajoute Mini-Titan à ton écran d\'accueil.</span></div>' + ic('chev') + '</button>'
         : '<div class="set">' + ic('install') + '<div class="tx"><span class="nm">Installer l\'appli</span><span class="ds">' + fr('Sur iPhone : bouton Partager, puis « Sur l\'écran d\'accueil ». Sur Android : menu du navigateur, puis « Installer l\'application ».') + '</span></div></div>') +
       '</div>' +
-      '<p class="gt">Le temps</p><div class="group"><div class="set-block"><div class="nm">' + ic('speed') + 'Vitesse du temps</div><div class="seg" id="segSpeed">' +
-      [1, 20, 120].map(function (n) { return '<button type="button" data-s="' + n + '" class="' + (S.speed === n ? 'on' : '') + '">×' + n + '</button>'; }).join('') +
-      '</div><p class="cap">' + fr('Pour essayer : ×20 ou ×120 font défiler les heures (il grandit, a faim et s\'endort bien plus vite), seulement tant que l\'appli est à l\'écran. Une pastille le rappelle près de l\'heure. Reviens à ×1 pour jouer normalement.') + '</p></div></div>' +
       '<p class="gt">Aide</p><div class="group">' +
       '<button class="set" type="button" id="setHelp">' + ic('help') + '<div class="tx"><span class="nm">Comment jouer</span></div>' + ic('chev') + '</button>' +
       '<a class="set" href="classique.html">' + ic('retro') + '<div class="tx"><span class="nm">Version classique</span><span class="ds">L\'œuf en pixels à trois boutons.</span></div>' + ic('chev') + '</a>' +
@@ -847,12 +844,6 @@
         });
       };
       try { var q = Notification.requestPermission(done); if (q && q.then) q.then(done, function () { done('denied'); }); } catch (e) { toast('Notifications indisponibles sur ce navigateur'); }
-    });
-    $('segSpeed').addEventListener('click', function (e) {
-      var b = e.target.closest('button'); if (!b) return;
-      core.setSpeed(+b.dataset.s); sfx('tap');
-      Array.prototype.forEach.call(this.children, function (x) { x.classList.toggle('on', x === b); });
-      toast(S.speed === 1 ? 'Temps normal' : 'Le temps file ×' + S.speed);
     });
     $('setHelp').addEventListener('click', openHelp);
     $('setWipe').addEventListener('click', function () {

@@ -74,7 +74,7 @@ h1{font-size:26px;margin:4px 0 2px;letter-spacing:2px;text-shadow:0 3px 0 rgba(0
 <div class="bar">
   <button id="bLook">🎨 Changer de look</button>
   <button id="bSnd">🔊 Son</button>
-  <button id="bSpd">⏩ Vitesse ×1</button>
+
 </div>
 <div id="main"></div>
 
@@ -93,7 +93,7 @@ h1{font-size:26px;margin:4px 0 2px;letter-spacing:2px;text-shadow:0 3px 0 rgba(0
     <li>❗ <b>Appel</b> — s'allume quand il a besoin de toi. Sans réponse en 15 minutes, c'est une erreur de soin.</li>
   </ul>
   Il grandit en temps réel, même page fermée : œuf → bébé → enfant → ado → adulte. Sa forme adulte dépend de tes soins.
-  Mal soigné trop longtemps, il s'envole… Le bouton <b>Vitesse</b> accélère le temps pour essayer.
+  Mal soigné trop longtemps, il s'envole…
 </div>
 
 <div id="gal" hidden>
@@ -419,7 +419,7 @@ function evolve(){
 function tick(){
   const now=Date.now();let dt=now-S.last;S.last=now;
   if(dt>5000){dt=Math.min(dt,7*864e5);S.simT=now-dt;S.acc+=dt}   // page fermée : rattrapage à vitesse réelle
-  else S.acc+=dt*S.speed;
+  else S.acc+=dt;
   let n=0;
   while(S.acc>=60000){S.acc-=60000;S.simT+=60000;minute(S.simT);n++}
   if(S.speed===1&&Math.abs(S.simT-now)>90000)S.simT=now;
@@ -560,7 +560,7 @@ function openGal(){document.getElementById('galClose').style.display=S.chosen?''
 /* ---------- démarrage ---------- */
 function ui(){
   document.getElementById('bSnd').textContent=S.mute?'🔇 Son coupé':'🔊 Son';
-  document.getElementById('bSpd').textContent='⏩ Vitesse ×'+S.speed;
+
 }
 S=load()||fresh(0);
 dev=buildDevice(th(),true);document.getElementById('main').appendChild(dev);
@@ -569,7 +569,7 @@ applyTheme();buildGallery();ui();
 document.getElementById('bLook').onclick=openGal;
 document.getElementById('galClose').onclick=()=>{document.getElementById('gal').hidden=true};
 document.getElementById('bSnd').onclick=()=>{S.mute=!S.mute;audio();ui();save()};
-document.getElementById('bSpd').onclick=()=>{S.speed=S.speed===1?20:S.speed===20?120:1;if(S.speed===1)S.simT=Date.now();ui();save()};
+
 addEventListener('keydown',e=>{const k={ArrowLeft:'A',ArrowDown:'B',Enter:'B',ArrowRight:'C','1':'A','2':'B','3':'C'}[e.key];if(k){e.preventDefault();press(k)}});
 document.addEventListener('visibilitychange',()=>{if(document.hidden)save()});
 if(!S.chosen)openGal();
