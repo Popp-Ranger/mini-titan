@@ -635,3 +635,55 @@ html, body, .app, .app * { touch-action: manipulation; }
 .ach-banner .ach-tx { display: flex; flex-direction: column; min-width: 0; }
 .ach-banner b { font-size: 11.5px; font-weight: 800; letter-spacing: .07em; text-transform: uppercase; opacity: .7; }
 .ach-banner .ach-tx > span { font-size: 16px; font-weight: 800; overflow: hidden; text-overflow: ellipsis; }
+
+/* ================================================================== accueil « jeu vidéo »
+   Le décor prend tout l'écran : portrait + carte d'identité en haut, jauges segmentées à droite,
+   raccourcis (Profil, Looks, Album, Réglages) à gauche, six pastilles de couleur en bas.
+   La barre d'onglets ne revient que dans les autres écrans. */
+.app.at-home .tabbar { display: none; }
+.view-home .stage { border-radius: 0; }
+.topbar { align-items: center; gap: 10px; padding: calc(var(--sat) + 12px) 12px 0; }
+.av { flex: none; width: 54px; height: 54px; border-radius: 16px; display: grid; place-items: center; background: var(--accent); color: var(--on-accent);
+  font-size: 22px; font-weight: 900; box-shadow: 0 0 0 2px #fff, 0 6px 14px rgba(0, 0, 0, .4); }
+.idcard { display: block; flex: 1 1 auto; min-width: 0; max-width: none; padding: 8px 12px 10px; border-radius: 16px; }
+.idcard .nm { display: inline; font-size: 16px; }
+.idcard .sub { display: inline; margin-left: 6px; font-size: 12px; }
+.idcard .grow { height: 6px; margin-top: 6px; border-radius: 3px; }
+.topright { flex: none; }
+.topright .clock { position: absolute; right: 12px; top: calc(var(--sat) + 214px); height: 32px; padding: 0 12px 0 9px; border-radius: 12px; font-size: 13px; }
+.topright .clock .ic { width: 16px; height: 16px; }
+
+.gauges { left: auto; right: 12px; bottom: auto; top: calc(var(--sat) + 84px); width: 138px; display: grid; grid-template-columns: 1fr; gap: 6px;
+  padding: 0; border-radius: 0; background: none; border: 0; box-shadow: none; }
+.gauge { flex-direction: row; align-items: center; gap: 7px; min-height: 0; height: 26px; padding: 0 8px; border-radius: 10px; color: #fff;
+  background: rgba(12, 16, 28, .58); border: 1px solid rgba(255, 255, 255, .14); -webkit-backdrop-filter: blur(14px) saturate(1.4); backdrop-filter: blur(14px) saturate(1.4); }
+.gauge > .ic { width: 15px; height: 15px; stroke-width: 2.4; }
+.gauge .seg { flex: 1 1 auto; display: grid; grid-template-columns: repeat(8, 1fr); gap: 2px; padding: 0; background: none; border-radius: 0; }
+.gauge .seg i { height: 8px; border-radius: 2px; background: rgba(255, 255, 255, .22); transition: background .3s; }
+.gauge .seg i.f { background: var(--hi); }
+.gauge.warn .seg i.f { background: var(--warn); }
+.gauge.bad { border-color: var(--bad); animation: ui-pulse 1.1s ease-in-out infinite; }
+.gauge.bad > .ic { color: var(--bad); }
+.gauge.bad .seg i { background: rgba(255, 77, 94, .45); }
+
+.side { position: absolute; z-index: 6; left: 12px; top: calc(var(--sat) + 86px); display: grid; gap: 8px; }
+.side button { width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; color: #fff; background: rgba(12, 16, 28, .58);
+  border: 1px solid rgba(255, 255, 255, .14); transition: transform .18s var(--ease); }
+.side button:active { transform: scale(.88); }
+.side button .ic { width: 21px; height: 21px; }
+
+.dock { position: absolute; z-index: 6; left: 0; right: 0; bottom: 0; padding: 0 6px calc(var(--sab) + 12px); background: none; gap: 0; pointer-events: none; }
+.dock .act { pointer-events: auto; gap: 6px; }
+.act .circ, .act.lit .circ, .act.alert .circ, .act.alert.lit .circ {
+  width: var(--dock-c); height: var(--dock-c); color: #fff; animation: none;
+  background: radial-gradient(circle at 34% 26%, rgba(255, 255, 255, .65), transparent 42%), var(--c);
+  box-shadow: 0 5px 0 var(--d), 0 9px 14px rgba(0, 0, 0, .4), inset 0 -3px 6px rgba(0, 0, 0, .18);
+}
+.act .circ .ic { width: 25px; height: 25px; stroke-width: 2.3; filter: drop-shadow(0 1px 1px rgba(0, 0, 0, .35)); }
+.act:active .circ { transform: translateY(4px) scale(.96); box-shadow: 0 1px 0 var(--d), 0 4px 8px rgba(0, 0, 0, .35), inset 0 -3px 6px rgba(0, 0, 0, .18); }
+.act .lb, .act.alert .lb { color: #fff; font-size: 11px; font-weight: 800; text-shadow: 0 1px 3px rgba(0, 0, 0, .85), 0 0 8px rgba(0, 0, 0, .5); }
+.act.alert .circ { animation: ui-nudge 2.4s ease-in-out infinite; box-shadow: 0 5px 0 var(--d), 0 0 0 3px #fff, 0 0 18px var(--c); }
+.act .dot { top: -2px; right: -2px; border-color: #fff; }
+.act[data-a="light"]:not(.lit) .circ { filter: saturate(.3) brightness(.75); }
+.stage.washing .side, .stage.washing .gauges { opacity: 0; pointer-events: none; }
+@media (max-height: 600px) { .topright .clock { display: none; } }

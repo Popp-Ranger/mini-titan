@@ -128,8 +128,8 @@
     { k: 'hygiene', lb: 'Propreté', ic: 'wash', tip: 'Propreté : lave-le et ramasse ses crottes.' }
   ];
   var ACTS = [
-    { a: 'feed', lb: 'Nourrir', ic: 'food' }, { a: 'play', lb: 'Jouer', ic: 'play' }, { a: 'wash', lb: 'Laver', ic: 'wash' },
-    { a: 'heal', lb: 'Soigner', ic: 'heal' }, { a: 'light', lb: 'Lumière', ic: 'light' }, { a: 'scold', lb: 'Rugir', ic: 'scold' }
+    { a: 'feed', lb: 'Nourrir', ic: 'food', c: '#ff7043', d: '#b23c17' }, { a: 'play', lb: 'Jouer', ic: 'play', c: '#8b6cf6', d: '#5237b8' }, { a: 'wash', lb: 'Laver', ic: 'wash', c: '#1fb6e8', d: '#0e7ba3' },
+    { a: 'heal', lb: 'Soigner', ic: 'heal', c: '#ec4f8a', d: '#a12357' }, { a: 'light', lb: 'Lumière', ic: 'light', c: '#f5b400', d: '#a97800' }, { a: 'scold', lb: 'Rugir', ic: 'scold', c: '#35c26b', d: '#1c7f41' }
   ];
   var TABS = [{ t: 'maison', lb: 'Maison', ic: 'home' }, { t: 'profil', lb: 'Profil', ic: 'user' }, { t: 'looks', lb: 'Looks', ic: 'palette' }, { t: 'album', lb: 'Album', ic: 'star' }, { t: 'reglages', lb: 'Réglages', ic: 'gear' }];
   var NEED_PROP = { malade: 'crane', lumiere: 'ampoule', faim: 'steak', humeur: 'ballon', caprice: 'megaphone', crotte: 'crotte', sale: 'savon', fatigue: 'zzz' };
@@ -141,15 +141,18 @@
   function buildHome() {
     $('gauges').innerHTML = GAUGES.map(function (g) {
       return '<button class="gauge" type="button" data-g="' + g.k + '" aria-label="' + g.lb + '">' +
-        '<span class="ring"><svg viewBox="0 0 48 48"><circle class="trk" cx="24" cy="24" r="20"/><circle class="val" cx="24" cy="24" r="20" stroke-dasharray="' + CIRC.toFixed(2) + '" stroke-dashoffset="' + CIRC.toFixed(2) + '"/></svg><b>0</b></span>' +
-        '<span class="lb">' + ic(g.ic) + g.lb + '</span></button>';
+        ic(g.ic) + '<span class="seg"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span></button>';
     }).join('');
     $('dock').innerHTML = ACTS.map(function (a) {
-      return '<button class="act" type="button" data-a="' + a.a + '"><span class="circ">' + ic(a.ic) + '<i class="dot"></i></span><span class="lb">' + a.lb + '</span></button>';
+      return '<button class="act" type="button" data-a="' + a.a + '" style="--c:' + a.c + ';--d:' + a.d + '"><span class="circ">' + ic(a.ic) + '<i class="dot"></i></span><span class="lb">' + a.lb + '</span></button>';
     }).join('');
     $('tabbar').innerHTML = TABS.map(function (t) {
       return '<button class="tab" type="button" data-t="' + t.t + '"><span class="pill">' + ic(t.ic) + '</span>' + t.lb + '</button>';
     }).join('');
+    $('side').innerHTML = TABS.slice(1).map(function (t) {
+      return '<button class="glass" type="button" data-t="' + t.t + '" aria-label="' + t.lb + '">' + ic(t.ic) + '</button>';
+    }).join('');
+    $('side').addEventListener('click', function (e) { var b = e.target.closest('button'); if (b) { sfx('tap'); go(b.dataset.t); } });
     $('bellIc').innerHTML = ic('bell');
     $('zzz').innerHTML = prop('zzz');
 
@@ -195,7 +198,7 @@
     if (!force && G.key === key) return;
     // ligne de sol, depuis le bas : celle du décor, bornée pour qu'il reste dans le cadre quand la scène est basse et large
     var e = Math.max(w / 400, h / 600), gb = Math.min(130 * e, Math.max(100, h * 0.42));
-    var topH = $('topbar').offsetHeight + 6;
+    var topH = $('topbar').offsetHeight + 34;
     // un adulte occupe 0,83 de son carré ; 30 px sont gardés au-dessus de sa tête pour la bulle de besoin
     var adult = Math.max(120, Math.min(w * 0.86, (h - gb - topH - 30) / 0.83));
     var side = adult * BOOST[S.stage], monH = monHeightFrac() * side;
@@ -245,7 +248,7 @@
     put('mon', [S.skin, S.stage, S.form, mood, dead, crack].join('|'), function () {
       $('mon').innerHTML = monster({ mood: mood, dead: dead, crack: crack });
     });
-    put('name', S.name, function (v) { $('tbName').textContent = v; });
+    put('name', S.name, function (v) { $('tbName').textContent = v; $('tbAv').textContent = (v || 'T').charAt(0).toUpperCase(); });
     // adulte : la forme seule (« Grognon · 12 jours »), le Profil donne le titre complet et la carte est étroite
     var what = S.stage === 4 && core.FORMS[S.form] ? core.FORMS[S.form] : core.stageName();
     put('sub', dead ? 'Envolé' : egg ? 'Œuf · bientôt éclos' : what + ' · ' + core.ageText(), function (v) { $('tbSub').textContent = v; });
@@ -262,8 +265,9 @@
     Array.prototype.forEach.call($('gauges').children, function (b, i) {
       var v = Math.round(S[GAUGES[i].k]);
       put('g' + i, v, function () {
-        b.querySelector('.val').setAttribute('stroke-dashoffset', (CIRC * (1 - v / 100)).toFixed(2));
-        b.querySelector('b').textContent = v;
+        var full = v <= 0 ? 0 : Math.max(1, Math.round(v / 12.5));          // 8 segments ; il en reste un tant que la jauge n'est pas vide
+        Array.prototype.forEach.call(b.querySelectorAll('.seg i'), function (s, k) { s.classList.toggle('f', k < full); });
+        b.setAttribute('aria-label', GAUGES[i].lb + ' : ' + v + ' sur 100');
         b.classList.toggle('warn', v > 0 && v < 25); b.classList.toggle('bad', v <= 0);
       });
     });
@@ -732,6 +736,7 @@
     if (washing) endWash();
     var prev = tab; tab = t;
     TABS.forEach(function (x) { $('v-' + x.t).classList.toggle('on', x.t === t); });
+    $('app').classList.toggle('at-home', t === 'maison');     // sur l'accueil, la barre d'onglets laisse place aux raccourcis de gauche
     Array.prototype.forEach.call($('tabbar').children, function (b) { b.classList.toggle('on', b.dataset.t === t); if (b.dataset.t === t) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current'); });
     if (prev !== t && prev !== 'maison') $('v-' + prev).innerHTML = '';     // libère les gros dessins
     refreshTab(true);
