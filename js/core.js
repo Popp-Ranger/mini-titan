@@ -26,6 +26,7 @@ window.MT = window.MT || {};
   var FORMS = { titan: 'Titan', grognon: 'Grognon' };
   var CALL_DELAY = 15;      // minutes pour répondre à un appel avant l'erreur de soin
   var NEGLECT_EVERY = 180;  // appel toujours sans réponse : une erreur de plus toutes les 3 h éveillées
+  var NIGHT_AWAKE = 20;     // minutes pendant lesquelles il reste debout quand on le reveille la nuit
   var LIGHT_DELAY = 60;     // minutes pour éteindre la lumière quand il s'endort
   var SICK_AFTER_DIRT = 180, DEATH_SICK = 720, DEATH_STARVE = 720, TITAN_MAX_MISTAKES = 30;
   var EGG_TAPS = 12;        // tapes pour faire éclore l'œuf tout de suite
@@ -45,7 +46,7 @@ window.MT = window.MT || {};
       hunger: 60, happy: 60, energy: 100, hygiene: 100, disc: 0, weight: 5,
       poops: 0, poopT: 10, dirtyT: 0, filthT: 0,
       sick: false, doses: 0, sickT: 0, starveT: 0, snacks: 0,
-      asleep: false, nap: false, light: true, lightT: 0,
+      asleep: false, nap: false, light: true, lightT: 0, awakeT: 0,
       mistakes: 0, callT: -1, fake: 0, fakeT: 200,
       dead: false, deathCause: '', born: now, last: now, simT: now, acc: 0, petAt: 0, roarAt: 0,
       speed: 1, mute: false, haptics: true, notif: false,
@@ -204,7 +205,10 @@ window.MT = window.MT || {};
     if (S.stage === 0) { if (S.grow >= STAGES[0].dur) evolve(); return; }
     var st = stage(), night = isSleepTime(t);
 
-    if (night && !S.asleep) { S.asleep = true; S.nap = false; S.lightT = 0; S.fake = 0; emit('sleep', { night: true }); }
+    if (!night) S.awakeT = 0;
+    // la nuit, le joueur peut le tirer du lit en allumant : il reste alors debout une vingtaine de minutes avant de se rendormir
+    if (night && !S.asleep && S.awakeT > 0) S.awakeT--;
+    else if (night && !S.asleep) { S.asleep = true; S.nap = false; S.lightT = 0; S.fake = 0; emit('sleep', { night: true }); }
     else if (night && S.nap) S.nap = false;
     // réveil : seulement en journée. Un stade qui se couche plus tard (évolution pendant le sommeil) ne le tire pas du lit le soir.
     else if (!night && S.asleep && !S.nap && new Date(t).getHours() < FIRST_BED) { S.asleep = false; S.light = true; emit('wake', {}); }
@@ -274,7 +278,7 @@ window.MT = window.MT || {};
 
   /* ---------- actions du joueur : renvoient { ok, reason?, ... } ---------- */
   var no = function (reason) { return { ok: false, reason: reason }; };
-  function done(r) { save(); emit('change', {}); return r; }
+  function done(r) { if (S.awakeT > 0) S.awakeT = NIGHT_AWAKE; save(); emit('change', {}); return r; }   // tant qu'on joue avec lui la nuit, il reste debout
   function blocked() {
     if (S.dead) return 'Il n\'est plus là…';
     if (S.stage === 0) return 'Il faut d\'abord qu\'il sorte de l\'œuf';
@@ -318,8 +322,8 @@ window.MT = window.MT || {};
     if (S.light) {
       if (!S.asleep) {
         if (S.stage < 2) return no('Un bébé ne fait pas de sieste');
-        if (S.energy >= 70) return no('Il n\'a pas sommeil');
-        S.asleep = true; S.nap = !isSleepTime(); S.fake = 0; S.light = false; S.lightT = 0;
+        if (S.energy >= 70 && !isSleepTime()) return no('Il n\'a pas sommeil');
+        S.asleep = true; S.nap = !isSleepTime(); S.fake = 0; S.light = false; S.lightT = 0; S.awakeT = 0;
         emit('sleep', { night: !S.nap });
         return done({ ok: true, light: false, asleep: true });
       }
@@ -327,8 +331,9 @@ window.MT = window.MT || {};
       return done({ ok: true, light: false, asleep: true });
     }
     S.light = true; S.lightT = 0;
-    if (S.asleep && S.nap) { S.asleep = false; S.nap = false; emit('wake', {}); }
-    return done({ ok: true, light: true, asleep: S.asleep });
+    var woke = S.asleep, atNight = woke && !S.nap;
+    if (woke) { S.asleep = false; S.nap = false; S.awakeT = atNight ? NIGHT_AWAKE : 0; emit('wake', { night: atNight }); }   // allumer le reveille toujours
+    return done({ ok: true, light: true, asleep: false, woke: woke, night: atNight });
   }
   function cleanPoop() {
     if (S.dead || S.poops <= 0) return no('Rien à nettoyer');

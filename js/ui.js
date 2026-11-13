@@ -553,7 +553,7 @@
   function light() {
     var r = core.toggleLight(); if (!r.ok) return refuse(r.reason);
     buzz(12);
-    if (r.light) { sfx(r.asleep ? 'tap' : 'wake'); toast(r.asleep ? 'Lumière allumée… il dort encore.' : 'Lumière allumée'); }
+    if (r.light) { if (r.woke) return; sfx(r.asleep ? 'tap' : 'wake'); toast(r.asleep ? 'Lumière allumée… il dort encore.' : 'Lumière allumée'); }
     else { sfx('sleep'); toast('Lumière éteinte. Bonne nuit !'); }
   }
   /* Rugir : le monstre pousse son cri, l'écran tremble. Plus il est grand, plus le cri est grave. */
@@ -721,7 +721,7 @@
     core.on('poop', function () { sfx('poop'); });
     core.on('mistake', function (d) { toast('Erreur de soin : ' + d.why); });
     core.on('sleep', function (d) { toast(d.night ? S.name + ' s\'endort. Pense à éteindre la lumière.' : S.name + ' fait une sieste'); });
-    core.on('wake', function () { sfx('wake'); toast(S.name + ' se réveille'); });
+    core.on('wake', function (d) { sfx('wake'); toast(S.name + (d && d.night ? ' se réveille. Sans toi, il se rendormira dans 20 minutes.' : ' se réveille')); });
     core.on('away', function (d) {
       if (S.dead) return;                                             // l'écran d'adieu raconte déjà la fin
       var lines = d.lines.slice(); if (d.slowed) lines.push('Le temps est revenu à sa vitesse normale (×1)');
@@ -870,7 +870,7 @@
       h('play', 'Jouer', 'Trois mini-jeux remontent son humeur. Tu peux aussi le caresser en le touchant.') +
       h('wash', 'Laver', 'Frotte-le avec l\'éponge, et touche ses crottes pour les ramasser. La saleté finit par le rendre malade.') +
       h('heal', 'Soigner', 'Une tête de mort ? Il est malade : donne-lui son médicament, parfois deux doses. Sans soin, il ne survit pas.') +
-      h('light', 'Lumière et sommeil', 'Il s\'endort tout seul le soir et se réveille à 8 h. Éteins la lumière quand il dort. En journée, s\'il est fatigué, éteindre la lumière lui fait faire une sieste.') +
+      h('light', 'Lumière et sommeil', 'Il s\'endort tout seul le soir et se réveille à 8 h. Éteins la lumière quand il dort. Tu veux jouer la nuit ? Rallume : il se réveille, puis se rendort au bout de 20 minutes sans toi, ou dès que tu éteins. En journée, s\'il est fatigué, éteindre lui fait faire une sieste.') +
       h('scold', 'Rugir', 'Juste pour le plaisir : il pousse son cri de monstre. Tout petit, il couine ; adulte, il fait trembler l\'écran.') +
       h('bell', 'Les appels', 'La cloche rouge sonne quand une jauge est vide ou qu\'il est malade. Sans réponse en 15 minutes, c\'est une erreur de soin, puis une de plus toutes les 3 heures tant qu\'il attend.') +
       h('star', 'Grandir', 'Œuf, bébé, enfant, ado, puis adulte : Titan s\'il a été bien soigné, Grognon sinon. Négligé trop longtemps, il s\'envole.') +
