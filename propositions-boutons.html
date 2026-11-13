@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mini-Titan — interface « Jeu vidéo » : 4 jeux de boutons</title>
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 20px 16px 40px; background: #16181f; color: #e8ebf5; font: 15px/1.4 -apple-system, "Segoe UI", Roboto, sans-serif; }
+  h1 { font-size: 24px; margin: 0 0 4px; }
+  .intro { color: #a9afc3; margin: 0 0 14px; max-width: 780px; }
+  .pick { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 18px; }
+  .pick a { padding: 6px 12px; border-radius: 999px; background: #262a36; color: #dfe3f0; text-decoration: none; font-size: 13px; font-weight: 600; }
+  .pick a.on { background: #fff; color: #111; }
+  .row { display: flex; flex-wrap: wrap; gap: 26px 22px; }
+  figure { margin: 0; width: 360px; }
+  figcaption { margin-top: 10px; }
+  figcaption b { font-size: 17px; display: block; }
+  figcaption span { color: #a9afc3; font-size: 13.5px; }
+  .ph { position: relative; width: 360px; height: 740px; border-radius: 38px; overflow: hidden; background: #000; box-shadow: 0 0 0 8px #0b0c10, 0 0 0 9px #333a4d, 0 30px 60px rgba(0,0,0,.5); font-family: -apple-system, "Segoe UI", Roboto, sans-serif; color: #fff; isolation: isolate; }
+  .sc { position: absolute; inset: 0; overflow: hidden; }
+  .sc .mt-scene { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .sc .mon { position: absolute; }
+  .sc .mon .mt-mon { width: 100%; height: 100%; display: block; }
+  svg.i { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+  .glass { background: rgba(12, 16, 28, .55); -webkit-backdrop-filter: blur(16px) saturate(1.4); backdrop-filter: blur(16px) saturate(1.4); border: 1px solid rgba(255,255,255,.14); }
+  button { font-family: inherit; }
+
+  /* ---------- base commune : l'interface « Jeu vidéo » ---------- */
+  .hud { position: absolute; left: 12px; right: 12px; top: 14px; display: flex; gap: 10px; align-items: center; }
+  .av { width: 54px; height: 54px; border-radius: 16px; background: var(--a); display: grid; place-items: center; font-weight: 900; font-size: 20px; color: var(--on); box-shadow: 0 0 0 2px #fff, 0 6px 14px rgba(0,0,0,.4); }
+  .inf { flex: 1; min-width: 0; padding: 7px 12px 9px; border-radius: 14px; }
+  .inf b { font-size: 15px; } .inf small { font-size: 11.5px; opacity: .8; margin-left: 6px; }
+  .xp { height: 6px; border-radius: 3px; background: rgba(255,255,255,.2); margin-top: 5px; } .xp i { display: block; height: 100%; width: 42%; border-radius: 3px; background: var(--a); }
+  .stats { position: absolute; right: 12px; top: 84px; width: 150px; display: grid; gap: 6px; }
+  .s { display: flex; align-items: center; gap: 6px; padding: 5px 8px; border-radius: 10px; font-size: 11px; font-weight: 800; }
+  .s svg.i { width: 15px; height: 15px; }
+  .seg { flex: 1; display: grid; grid-template-columns: repeat(8, 1fr); gap: 2px; } .seg i { height: 8px; border-radius: 2px; background: rgba(255,255,255,.2); } .seg i.f { background: var(--a); }
+  .side { position: absolute; left: 12px; top: 96px; display: grid; gap: 8px; }
+  .side button { width: 44px; height: 44px; border: 0; color: #fff; display: grid; place-items: center; }
+
+  /* ---------- A. Pastilles de couleur ---------- */
+  .ba .side button { border-radius: 50%; }
+  .ba .dock { position: absolute; left: 8px; right: 8px; bottom: 16px; display: grid; grid-template-columns: repeat(6, 1fr); gap: 2px; }
+  .ba .dock button { border: 0; background: none; color: #fff; font-size: 10.5px; font-weight: 800; display: flex; flex-direction: column; align-items: center; gap: 5px; text-shadow: 0 1px 3px rgba(0,0,0,.8); padding: 0; }
+  .ba .dock .c { width: 50px; height: 50px; border-radius: 50%; display: grid; place-items: center; color: #fff; background: radial-gradient(circle at 34% 26%, rgba(255,255,255,.65), transparent 42%), var(--c); box-shadow: 0 5px 0 var(--d), 0 9px 14px rgba(0,0,0,.4), inset 0 -3px 6px rgba(0,0,0,.18); }
+  .ba .dock .c svg.i { width: 24px; height: 24px; stroke-width: 2.3; filter: drop-shadow(0 1px 1px rgba(0,0,0,.35)); }
+
+  /* ---------- B. Hexagones néon ---------- */
+  .bb .side button { border-radius: 0; clip-path: polygon(25% 3%, 75% 3%, 100% 50%, 75% 97%, 25% 97%, 0 50%); background: rgba(10,14,26,.72); }
+  .bb .dock { position: absolute; left: 6px; right: 6px; bottom: 14px; height: 124px; }
+  .bb .dock button { position: absolute; width: 66px; height: 60px; border: 0; padding: 0; background: var(--a); clip-path: polygon(25% 0, 75% 0, 100% 50%, 75% 100%, 25% 100%, 0 50%); filter: drop-shadow(0 0 8px var(--a)); }
+  .bb .dock button span { position: absolute; inset: 2px; clip-path: polygon(25% 0, 75% 0, 100% 50%, 75% 100%, 25% 100%, 0 50%); background: #0c1020; color: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; font-size: 9px; font-weight: 800; letter-spacing: .02em; }
+  .bb .dock button span svg.i { width: 20px; height: 20px; color: var(--a); }
+  .bb .dock button.hot span { background: var(--a); color: var(--on); } .bb .dock button.hot span svg.i { color: var(--on); }
+
+  /* ---------- C. Touches d'arcade ---------- */
+  .bc .side button { border-radius: 12px; background: linear-gradient(#3a4158, #232838); box-shadow: 0 4px 0 #11141d; }
+  .bc .dock { position: absolute; left: 12px; right: 12px; bottom: 16px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px 9px; }
+  .bc .dock button { height: 50px; border: 0; border-radius: 15px; color: #fff; font-size: 13.5px; font-weight: 800; display: flex; align-items: center; justify-content: center; gap: 6px; background: linear-gradient(var(--c), var(--c2)); box-shadow: 0 6px 0 var(--d), 0 10px 14px rgba(0,0,0,.4), inset 0 2px 0 rgba(255,255,255,.4); text-shadow: 0 1px 1px rgba(0,0,0,.35); }
+  .bc .dock button svg.i { width: 20px; height: 20px; stroke-width: 2.4; }
+
+  /* ---------- D. Vignettes illustrées ---------- */
+  .bd .side button { border-radius: 14px; }
+  .bd .dock { position: absolute; left: 8px; right: 8px; bottom: 12px; padding: 8px 6px 6px; border-radius: 26px; display: grid; grid-template-columns: repeat(6, 1fr); gap: 4px; }
+  .bd .dock button { border: 0; background: none; color: #fff; font-size: 10px; font-weight: 800; display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 0; }
+  .bd .dock .t { width: 50px; height: 50px; border-radius: 16px; background: linear-gradient(rgba(255,255,255,.95), rgba(232,236,248,.95)); box-shadow: 0 4px 0 rgba(0,0,0,.35), inset 0 0 0 2px rgba(255,255,255,.8); padding: 5px; }
+  .bd .dock .t svg { width: 100%; height: 100%; display: block; overflow: visible; }
+  .bd .dock button.hot .t { box-shadow: 0 4px 0 rgba(0,0,0,.35), 0 0 0 3px var(--a), 0 0 16px var(--a); }
+</style>
+</head>
+<body>
+<h1>Interface « Jeu vidéo » — 4 jeux de boutons</h1>
+<p class="intro">La proposition 4 que tu as retenue, avec quatre styles de boutons d'action (et de raccourcis à gauche). Ce sont des maquettes : rien n'est cliquable, le jeu n'est pas encore modifié. Change de look pour voir chaque style dans une autre ambiance.</p>
+<div class="pick" id="pick"></div>
+<div class="row" id="row"></div>
+
+<script src="js/skins.js"></script>
+<script src="js/art.js"></script>
+<script src="js/scenes.js"></script>
+<script>
+(function () {
+  var q = {}; location.search.replace(/[?&]([^=&]+)=([^&]*)/g, function (m, k, v) { q[k] = decodeURIComponent(v); });
+  var li = Math.max(0, Math.min(MT.SKINS.length - 1, +q.look || 0)), sk = MT.SKINS[li], n = 0;
+  ['art', 'scenes'].forEach(function (m) { var s = document.createElement('style'); s.textContent = MT[m].css; document.head.appendChild(s); });
+  document.getElementById('pick').innerHTML = MT.SKINS.map(function (s, i) { return '<a class="' + (i === li ? 'on' : '') + '" href="?look=' + i + '">' + s.name + '</a>'; }).join('');
+  function lum(h) { h = h.replace('#', ''); var r = parseInt(h.substr(0, 2), 16), g = parseInt(h.substr(2, 2), 16), b = parseInt(h.substr(4, 2), 16); return (0.299 * r + 0.587 * g + 0.114 * b) / 255; }
+  var A = sk.ui.accent, ON = lum(A) > 0.55 ? '#141018' : '#ffffff';
+  var P = {
+    food: '<path d="M7 3v7a2.2 2.2 0 0 0 4.4 0V3M9.2 3v18"/><path d="M17 21v-7.500M17 13.500c-1.700 0-2.800-1.600-2.800-4.800S15.600 3 17 3v10.500Z"/>',
+    play: '<rect x="2.800" y="7.500" width="18.400" height="10.500" rx="5.200"/><path d="M7.400 11v3.600M5.600 12.800h3.600"/><circle cx="16" cy="13" r="1"/>',
+    wash: '<path d="M12 3.200c3.200 3.900 5.600 6.900 5.600 10.300a5.600 5.600 0 0 1-11.200 0c0-3.400 2.400-6.400 5.600-10.300Z"/>',
+    heal: '<rect x="3.200" y="8.600" width="17.600" height="6.800" rx="3.400" transform="rotate(-45 12 12)"/><path d="m8.900 8.900 6.200 6.200"/>',
+    light: '<path d="M8.400 15.200a6 6 0 1 1 7.200 0c-.6.500-.9 1.100-.9 1.800H9.300c0-.7-.3-1.300-.9-1.800Z"/><path d="M9.800 20.200h4.400"/>',
+    roar: '<path d="M4 10v4h3l7 4.500v-13L7 10H4Z"/><path d="M17.400 9.200a4 4 0 0 1 0 5.600M19.800 6.800a7.400 7.400 0 0 1 0 10.400"/>',
+    smile: '<circle cx="12" cy="12" r="8.600"/><path d="M8.300 13.800c1 1.500 2.200 2.200 3.700 2.200s2.700-.7 3.700-2.200"/>',
+    bolt: '<path d="M13 2.800 5.500 13.500H11l-1 7.700L18.500 10.500H13Z"/>',
+    user: '<circle cx="12" cy="8.500" r="3.600"/><path d="M4.800 20c.9-3.600 3.800-5.400 7.200-5.400s6.300 1.800 7.200 5.400"/>',
+    star: '<path d="m12 3.500 2.600 5.400 5.900.8-4.300 4.100 1 5.900L12 16.900l-5.200 2.800 1-5.900L3.500 9.700l5.900-.8Z"/>',
+    pal: '<circle cx="12" cy="12" r="8.500"/><circle cx="8.500" cy="10.500" r="1"/><circle cx="12" cy="8" r="1"/><circle cx="15.500" cy="10.500" r="1"/>',
+    gear: '<circle cx="12" cy="12" r="3"/><path d="M12 3v2.400M12 18.600V21M3 12h2.400M18.600 12H21M5.600 5.600l1.700 1.700M16.700 16.700l1.700 1.700M5.600 18.400l1.700-1.700M16.700 7.300l1.700-1.700"/>'
+  };
+  function ic(k) { return '<svg class="i" viewBox="0 0 24 24">' + P[k] + '</svg>'; }
+  /* action, libellé, couleur, couleur claire, couleur d'ombre, objet illustré */
+  var ACT = [['food', 'Nourrir', '#ff7043', '#ff9a6b', '#b23c17', 'steak'], ['play', 'Jouer', '#f5b400', '#ffd24d', '#a97800', 'ballon'], ['wash', 'Laver', '#1fb6e8', '#62d2f5', '#0e7ba3', 'eponge'],
+    ['heal', 'Soigner', '#ec4f8a', '#ff86b0', '#a12357', 'seringue'], ['light', 'Lumière', '#8b6cf6', '#b29cff', '#5237b8', 'ampoule'], ['roar', 'Rugir', '#35c26b', '#6fe09a', '#1c7f41', 'megaphone']];
+  var ST = [['food', 72], ['smile', 84], ['bolt', 46], ['wash', 80]];
+  function base(cls, dock) {
+    return '<div class="ph ' + cls + '"><div class="sc">' + MT.scenes.render(sk, { night: false, uid: 'p' + (++n) + '-' }) + '<div class="mon">' + MT.art.monster(sk, { stage: 3, mood: 'happy', uid: 'm' + (++n) + '-' }) + '</div></div>' +
+      '<div class="hud"><div class="av">T</div><div class="inf glass"><b>Titan</b><small>Ado · 2 jours</small><div class="xp"><i></i></div></div></div>' +
+      '<div class="stats">' + ST.map(function (s) { var f = Math.round(s[1] / 12.5), seg = ''; for (var i = 0; i < 8; i++) seg += '<i class="' + (i < f ? 'f' : '') + '"></i>'; return '<div class="s glass">' + ic(s[0]) + '<div class="seg">' + seg + '</div></div>'; }).join('') + '</div>' +
+      '<div class="side">' + ['user', 'pal', 'star', 'gear'].map(function (k) { return '<button class="' + (cls === 'bb' || cls === 'bc' ? '' : 'glass') + '">' + ic(k) + '</button>'; }).join('') + '</div>' + dock + '</div>';
+  }
+  var M = [
+    ['A · Pastilles de couleur', 'Six boutons ronds brillants, chacun sa couleur (orange pour nourrir, bleu pour laver…) : on les reconnaît sans lire. Relief façon jouet, libellé dessous.',
+      base('ba', '<div class="dock">' + ACT.map(function (a) { return '<button><span class="c" style="--c:' + a[2] + ';--d:' + a[4] + '">' + ic(a[0]) + '</span>' + a[1] + '</button>'; }).join('') + '</div>')],
+    ['B · Hexagones néon', 'Des alvéoles sombres cerclées de lumière, à la couleur du look, sur deux rangées décalées. L\'action conseillée s\'allume en plein. Le plus « jeu vidéo » des quatre.',
+      base('bb', '<div class="dock">' + ACT.map(function (a, i) { var r = i < 3 ? 0 : 1, c = i % 3, x = 20 + c * 100 + (r ? 50 : 0), y = r * 64; return '<button class="' + (i === 4 ? 'hot' : '') + '" style="left:' + x + 'px;top:' + y + 'px"><span>' + ic(a[0]) + a[1] + '</span></button>'; }).join('') + '</div>')],
+    ['C · Touches d\'arcade', 'Deux rangées de trois grosses touches colorées avec icône et mot côte à côte, épaisses comme des touches de borne d\'arcade. Les plus grandes cibles pour le pouce.',
+      base('bc', '<div class="dock">' + ACT.map(function (a) { return '<button style="--c:' + a[3] + ';--c2:' + a[2] + ';--d:' + a[4] + '">' + ic(a[0]) + a[1] + '</button>'; }).join('') + '</div>')],
+    ['D · Vignettes illustrées', 'Les icônes au trait laissent place aux objets dessinés du jeu (steak, ballon, éponge, seringue, ampoule, mégaphone) sur des vignettes claires. Le plus coloré et le plus enfantin.',
+      base('bd', '<div class="dock glass">' + ACT.map(function (a, i) { return '<button class="' + (i === 4 ? 'hot' : '') + '"><span class="t">' + MT.props.svg(a[5], 'o' + (++n) + '-') + '</span>' + a[1] + '</button>'; }).join('') + '</div>')]
+  ];
+  document.getElementById('row').innerHTML = M.map(function (m) { return '<figure>' + m[2] + '<figcaption><b>' + m[0] + '</b><span>' + m[1] + '</span></figcaption></figure>'; }).join('');
+  Array.prototype.forEach.call(document.querySelectorAll('.ph'), function (p) { p.style.setProperty('--a', A); p.style.setProperty('--on', ON); });
+  Array.prototype.forEach.call(document.querySelectorAll('.sc'), function (s) {
+    var w = s.clientWidth, h = s.clientHeight, e = Math.max(w / 400, h / 600), gb = 130 * e, side = Math.min(w * 0.95, (h - gb - 40) / 0.66), m = s.querySelector('.mon');
+    m.style.width = m.style.height = side + 'px'; m.style.left = (w - side) / 2 + 'px'; m.style.bottom = (gb - side * 0.1) + 'px';
+  });
+})();
+</script>
+</body>
+</html>
