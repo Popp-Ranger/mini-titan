@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mini-Titan — 5 propositions d'interface</title>
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 20px 16px 40px; background: #16181f; color: #e8ebf5; font: 15px/1.4 -apple-system, "Segoe UI", Roboto, sans-serif; }
+  h1 { font-size: 24px; margin: 0 0 4px; }
+  .intro { color: #a9afc3; margin: 0 0 14px; max-width: 760px; }
+  .pick { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 18px; }
+  .pick a { padding: 6px 12px; border-radius: 999px; background: #262a36; color: #dfe3f0; text-decoration: none; font-size: 13px; font-weight: 600; }
+  .pick a.on { background: #fff; color: #111; }
+  .row { display: flex; flex-wrap: wrap; gap: 26px 22px; }
+  figure { margin: 0; width: 360px; }
+  figcaption { margin-top: 10px; }
+  figcaption b { font-size: 17px; display: block; }
+  figcaption span { color: #a9afc3; font-size: 13.5px; }
+  .ph { position: relative; width: 360px; height: 740px; border-radius: 38px; overflow: hidden; background: #000; box-shadow: 0 0 0 8px #0b0c10, 0 0 0 9px #333a4d, 0 30px 60px rgba(0,0,0,.5); font-family: -apple-system, "Segoe UI", Roboto, sans-serif; color: #fff; isolation: isolate; }
+  .sc { position: absolute; overflow: hidden; }
+  .sc .mt-scene { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .sc .mon { position: absolute; }
+  .sc .mon .mt-mon { width: 100%; height: 100%; display: block; }
+  svg.i { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+  .glass { background: rgba(12, 16, 28, .55); -webkit-backdrop-filter: blur(16px) saturate(1.4); backdrop-filter: blur(16px) saturate(1.4); border: 1px solid rgba(255,255,255,.14); }
+
+  /* ---------- 1. Immersif ---------- */
+  .p1 .sc { inset: 0; }
+  .p1 .name { position: absolute; left: 16px; top: 18px; padding: 8px 14px; border-radius: 18px; }
+  .p1 .name b { font-size: 18px; display: block; line-height: 1.1; } .p1 .name span { font-size: 12px; opacity: .8; }
+  .p1 .menu { position: absolute; right: 16px; top: 18px; width: 46px; height: 46px; border-radius: 50%; display: grid; place-items: center; }
+  .p1 .bars { position: absolute; left: 14px; top: 110px; display: grid; gap: 10px; }
+  .p1 .bar { display: flex; align-items: center; gap: 8px; }
+  .p1 .bar .tube { width: 12px; height: 74px; border-radius: 6px; background: rgba(0,0,0,.35); border: 1px solid rgba(255,255,255,.25); display: flex; align-items: flex-end; overflow: hidden; }
+  .p1 .bar .tube i { width: 100%; border-radius: 6px; background: var(--a); }
+  .p1 .bar svg.i { width: 26px; height: 26px; padding: 4px; border-radius: 50%; background: rgba(12,16,28,.6); }
+  .p1 .arc { position: absolute; left: 0; right: 0; bottom: 26px; height: 170px; }
+  .p1 .arc button { position: absolute; width: 54px; height: 54px; margin: -27px; border-radius: 50%; border: 0; color: #fff; display: grid; place-items: center; }
+  .p1 .arc .main { width: 72px; height: 72px; margin: -36px; left: 50%; top: 130px; background: var(--a); color: var(--on); box-shadow: 0 10px 26px rgba(0,0,0,.45); }
+  .p1 .arc .main svg.i { width: 30px; height: 30px; }
+  .p1 .hintl { position: absolute; left: 0; right: 0; bottom: 8px; text-align: center; font-size: 11.5px; opacity: .75; text-shadow: 0 1px 3px #000; }
+
+  /* ---------- 2. Carte du bas ---------- */
+  .p2 { background: #f4f1ea; color: #1c1b22; }
+  .p2 .sc { left: 0; right: 0; top: 0; height: 400px; }
+  .p2 .top { position: absolute; left: 14px; right: 14px; top: 16px; display: flex; justify-content: space-between; align-items: center; }
+  .p2 .chip { padding: 7px 13px; border-radius: 16px; background: rgba(255,255,255,.9); color: #1c1b22; font-weight: 700; font-size: 14px; box-shadow: 0 4px 12px rgba(0,0,0,.15); }
+  .p2 .card { position: absolute; left: 0; right: 0; bottom: 0; top: 368px; background: #fffdf8; border-radius: 30px 30px 0 0; padding: 16px 16px 0; box-shadow: 0 -10px 30px rgba(0,0,0,.18); }
+  .p2 .card h3 { margin: 0 0 2px; font-size: 20px; } .p2 .card p { margin: 0 0 12px; font-size: 13px; color: #6b6878; }
+  .p2 .st { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 14px; margin-bottom: 14px; }
+  .p2 .st div { font-size: 12px; font-weight: 700; color: #6b6878; }
+  .p2 .st .m { height: 9px; border-radius: 5px; background: #ebe6da; margin-top: 4px; overflow: hidden; } .p2 .st .m i { display: block; height: 100%; border-radius: 5px; }
+  .p2 .acts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .p2 .acts button { border: 0; border-radius: 18px; padding: 8px 4px 6px; font: 700 12.5px inherit; color: #1c1b22; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+  .p2 .nav { position: absolute; left: 50%; bottom: 12px; transform: translateX(-50%); display: flex; gap: 22px; padding: 10px 22px; border-radius: 26px; background: #1c1b22; color: #8f8c9c; }
+  .p2 .nav .on { color: #fff; }
+
+  /* ---------- 3. Console de poche ---------- */
+  .p3 { background: linear-gradient(160deg, var(--a), var(--b)); }
+  .p3::before { content: ""; position: absolute; inset: 0; background: radial-gradient(120% 60% at 30% 0, rgba(255,255,255,.35), transparent 60%); }
+  .p3 .brand { position: absolute; top: 18px; left: 0; right: 0; text-align: center; font-weight: 900; letter-spacing: .28em; font-size: 12px; color: var(--on); opacity: .75; }
+  .p3 .bezel { position: absolute; left: 18px; right: 18px; top: 44px; height: 430px; border-radius: 34px; background: #14161d; padding: 10px; box-shadow: inset 0 4px 10px rgba(0,0,0,.7), 0 2px 0 rgba(255,255,255,.35); }
+  .p3 .sc { position: relative; width: 100%; height: 100%; border-radius: 26px; }
+  .p3 .hud { position: absolute; left: 10px; right: 10px; top: 10px; display: flex; justify-content: space-between; gap: 6px; }
+  .p3 .hud span { flex: 1; display: flex; align-items: center; justify-content: center; gap: 4px; padding: 5px 0; border-radius: 12px; font-size: 12.5px; font-weight: 800; background: rgba(8,10,18,.6); }
+  .p3 .hud svg.i { width: 15px; height: 15px; }
+  .p3 .pad { position: absolute; left: 22px; right: 22px; top: 494px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px 14px; }
+  .p3 .pad button { height: 62px; border-radius: 22px; border: 0; background: linear-gradient(#fff, #e3e6ee); color: #20232e; font: 800 12px inherit; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; box-shadow: 0 6px 0 rgba(0,0,0,.28), inset 0 2px 0 #fff; }
+  .p3 .foot { position: absolute; left: 0; right: 0; bottom: 14px; display: flex; justify-content: center; gap: 30px; color: var(--on); opacity: .8; }
+
+  /* ---------- 4. HUD de jeu vidéo ---------- */
+  .p4 .sc { inset: 0; }
+  .p4 .hud { position: absolute; left: 12px; right: 12px; top: 14px; display: flex; gap: 10px; align-items: center; }
+  .p4 .av { width: 54px; height: 54px; border-radius: 16px; background: var(--a); display: grid; place-items: center; font-weight: 900; font-size: 20px; color: var(--on); box-shadow: 0 0 0 2px #fff, 0 6px 14px rgba(0,0,0,.4); }
+  .p4 .inf { flex: 1; min-width: 0; padding: 7px 12px 9px; border-radius: 14px; }
+  .p4 .inf b { font-size: 15px; } .p4 .inf small { font-size: 11.5px; opacity: .8; margin-left: 6px; }
+  .p4 .xp { height: 6px; border-radius: 3px; background: rgba(255,255,255,.2); margin-top: 5px; } .p4 .xp i { display: block; height: 100%; width: 42%; border-radius: 3px; background: var(--a); }
+  .p4 .stats { position: absolute; right: 12px; top: 84px; width: 150px; display: grid; gap: 6px; }
+  .p4 .s { display: flex; align-items: center; gap: 6px; padding: 5px 8px; border-radius: 10px; font-size: 11px; font-weight: 800; }
+  .p4 .s svg.i { width: 15px; height: 15px; }
+  .p4 .seg { flex: 1; display: grid; grid-template-columns: repeat(8, 1fr); gap: 2px; } .p4 .seg i { height: 8px; border-radius: 2px; background: rgba(255,255,255,.2); } .p4 .seg i.f { background: var(--a); }
+  .p4 .dock { position: absolute; left: 10px; right: 10px; bottom: 14px; padding: 8px; border-radius: 24px; display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; }
+  .p4 .dock button { height: 56px; border: 0; border-radius: 16px; background: rgba(255,255,255,.1); color: #fff; font: 700 9px inherit; padding: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; }
+  .p4 .dock button.hot { background: var(--a); color: var(--on); box-shadow: 0 0 18px var(--a); }
+  .p4 .side { position: absolute; left: 12px; top: 96px; display: grid; gap: 8px; }
+  .p4 .side button { width: 44px; height: 44px; border-radius: 14px; border: 0; color: #fff; display: grid; place-items: center; }
+
+  /* ---------- 5. Tableau de bord ---------- */
+  .p5 { background: #eef0f6; color: #171923; }
+  .p5 .head { position: absolute; left: 18px; right: 18px; top: 18px; display: flex; justify-content: space-between; align-items: flex-end; }
+  .p5 .head b { font-size: 26px; letter-spacing: -.02em; } .p5 .head span { font-size: 13px; color: #6a7084; display: block; }
+  .p5 .sc { left: 14px; right: 14px; top: 78px; height: 300px; border-radius: 28px; box-shadow: 0 14px 30px rgba(20,30,60,.2); }
+  .p5 .need { position: absolute; left: 14px; right: 14px; top: 392px; padding: 12px 12px 12px 16px; border-radius: 22px; background: #fff; display: flex; align-items: center; gap: 12px; box-shadow: 0 6px 16px rgba(20,30,60,.08); }
+  .p5 .need div { flex: 1; } .p5 .need b { display: block; font-size: 15.5px; } .p5 .need span { font-size: 12.5px; color: #6a7084; }
+  .p5 .need button { border: 0; border-radius: 16px; padding: 11px 16px; background: var(--a); color: var(--on); font: 800 14px inherit; }
+  .p5 .tiles { position: absolute; left: 14px; right: 14px; top: 474px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+  .p5 .tile { background: #fff; border-radius: 18px; padding: 10px 4px 8px; text-align: center; box-shadow: 0 6px 16px rgba(20,30,60,.08); }
+  .p5 .tile b { display: block; font-size: 19px; } .p5 .tile span { font-size: 11px; color: #6a7084; font-weight: 600; }
+  .p5 .tile .r { height: 5px; margin: 6px 10px 0; border-radius: 3px; background: #e6e9f2; overflow: hidden; } .p5 .tile .r i { display: block; height: 100%; background: var(--a2); }
+  .p5 .quick { position: absolute; left: 14px; right: 14px; top: 566px; display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+  .p5 .quick button { border: 0; background: #fff; border-radius: 18px; height: 58px; color: #171923; font: 700 10.5px inherit; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; box-shadow: 0 6px 16px rgba(20,30,60,.08); }
+  .p5 .nav { position: absolute; left: 0; right: 0; bottom: 0; height: 66px; background: #fff; display: grid; grid-template-columns: repeat(5, 1fr); align-items: center; justify-items: center; color: #9aa0b4; font-size: 10.5px; font-weight: 700; border-top: 1px solid #e3e6ef; }
+  .p5 .nav span { display: flex; flex-direction: column; align-items: center; gap: 2px; } .p5 .nav .on { color: var(--a2); }
+</style>
+</head>
+<body>
+<h1>Mini-Titan — 5 propositions d'interface</h1>
+<p class="intro">Cinq façons d'organiser l'écran principal, avec le vrai monstre et le vrai décor. Ce sont des maquettes : rien n'est cliquable, le jeu en ligne n'est pas modifié. Change de look ci-dessous pour voir chaque proposition dans une autre ambiance.</p>
+<div class="pick" id="pick"></div>
+<div class="row" id="row"></div>
+
+<script src="js/skins.js"></script>
+<script src="js/art.js"></script>
+<script src="js/scenes.js"></script>
+<script>
+(function () {
+  var q = {}; location.search.replace(/[?&]([^=&]+)=([^&]*)/g, function (m, k, v) { q[k] = decodeURIComponent(v); });
+  var li = Math.max(0, Math.min(MT.SKINS.length - 1, +q.look || 0)), sk = MT.SKINS[li], n = 0;
+  ['art', 'scenes'].forEach(function (m) { var s = document.createElement('style'); s.textContent = MT[m].css; document.head.appendChild(s); });
+  document.getElementById('pick').innerHTML = MT.SKINS.map(function (s, i) { return '<a class="' + (i === li ? 'on' : '') + '" href="?look=' + i + '">' + s.name + '</a>'; }).join('');
+  function lum(h) { h = h.replace('#', ''); var r = parseInt(h.substr(0, 2), 16), g = parseInt(h.substr(2, 2), 16), b = parseInt(h.substr(4, 2), 16); return (0.299 * r + 0.587 * g + 0.114 * b) / 255; }
+  var A = sk.ui.accent, A2 = lum(A) > 0.75 ? sk.ui.accent2 : A, ON = lum(A) > 0.55 ? '#141018' : '#ffffff';
+  var P = {
+    food: '<path d="M7 3v7a2.2 2.2 0 0 0 4.4 0V3M9.2 3v18"/><path d="M17 21v-7.500M17 13.500c-1.700 0-2.800-1.600-2.800-4.800S15.600 3 17 3v10.500Z"/>',
+    play: '<rect x="2.800" y="7.500" width="18.400" height="10.500" rx="5.200"/><path d="M7.400 11v3.600M5.600 12.800h3.600"/><circle cx="16" cy="13" r="1"/>',
+    wash: '<path d="M12 3.200c3.200 3.900 5.600 6.900 5.600 10.300a5.600 5.600 0 0 1-11.200 0c0-3.400 2.400-6.400 5.600-10.300Z"/>',
+    heal: '<rect x="3.200" y="8.600" width="17.600" height="6.800" rx="3.400" transform="rotate(-45 12 12)"/><path d="m8.900 8.900 6.200 6.200"/>',
+    light: '<path d="M8.400 15.200a6 6 0 1 1 7.200 0c-.6.500-.9 1.100-.9 1.800H9.300c0-.7-.3-1.300-.9-1.800Z"/><path d="M9.800 20.200h4.400"/>',
+    roar: '<path d="M4 10v4h3l7 4.500v-13L7 10H4Z"/><path d="M17.400 9.200a4 4 0 0 1 0 5.600M19.800 6.800a7.400 7.400 0 0 1 0 10.400"/>',
+    smile: '<circle cx="12" cy="12" r="8.600"/><path d="M8.300 13.800c1 1.500 2.200 2.200 3.700 2.200s2.700-.7 3.700-2.200"/>',
+    bolt: '<path d="M13 2.800 5.500 13.500H11l-1 7.700L18.500 10.500H13Z"/>',
+    home: '<path d="M3.500 11 12 4l8.500 7"/><path d="M5.500 9.800V20h13V9.800"/>',
+    user: '<circle cx="12" cy="8.500" r="3.600"/><path d="M4.800 20c.9-3.600 3.800-5.400 7.200-5.400s6.300 1.800 7.200 5.400"/>',
+    star: '<path d="m12 3.500 2.600 5.400 5.900.8-4.300 4.100 1 5.900L12 16.900l-5.200 2.800 1-5.900L3.500 9.700l5.900-.8Z"/>',
+    pal: '<circle cx="12" cy="12" r="8.500"/><circle cx="8.500" cy="10.500" r="1"/><circle cx="12" cy="8" r="1"/><circle cx="15.500" cy="10.500" r="1"/>',
+    gear: '<circle cx="12" cy="12" r="3"/><path d="M12 3v2.400M12 18.600V21M3 12h2.400M18.600 12H21M5.600 5.600l1.700 1.700M16.700 16.700l1.700 1.700M5.600 18.400l1.700-1.700M16.700 7.300l1.700-1.700"/>',
+    dots: '<circle cx="5" cy="12" r="1.300"/><circle cx="12" cy="12" r="1.300"/><circle cx="19" cy="12" r="1.300"/>',
+    plus: '<path d="M12 5v14M5 12h14"/>'
+  };
+  function ic(k) { return '<svg class="i" viewBox="0 0 24 24">' + P[k] + '</svg>'; }
+  var ACT = [['food', 'Nourrir'], ['play', 'Jouer'], ['wash', 'Laver'], ['heal', 'Soigner'], ['light', 'Lumière'], ['roar', 'Rugir']];
+  var ST = [['food', 'Faim', 72], ['smile', 'Humeur', 84], ['bolt', 'Énergie', 46], ['wash', 'Propreté', 80]];
+  function scene() { return '<div class="sc">' + MT.scenes.render(sk, { night: false, uid: 'p' + (++n) + '-' }) + '<div class="mon">' + MT.art.monster(sk, { stage: 3, mood: 'happy', uid: 'm' + (++n) + '-' }) + '</div>'; }
+  var navIcons = [['home', 'Maison'], ['user', 'Profil'], ['pal', 'Looks'], ['star', 'Album'], ['gear', 'Réglages']];
+
+  var M = [
+    ['1 · Immersif', 'Le décor prend tout l\'écran. Les jauges sont quatre tubes discrets à gauche ; un gros bouton central déploie les six actions en éventail. Les onglets passent dans un menu en haut à droite.',
+      '<div class="ph p1">' + scene() + '</div><div class="name glass"><b>Titan</b><span>Ado · 2 jours</span></div><div class="menu glass">' + ic('dots') + '</div>' +
+      '<div class="bars">' + ST.map(function (s) { return '<div class="bar"><div class="tube"><i style="height:' + s[2] + '%"></i></div>' + ic(s[0]) + '</div>'; }).join('') + '</div>' +
+      '<div class="arc">' + ACT.map(function (a, i) { var t = Math.PI * (1 - (i + 0.5) / 6), x = 180 + Math.cos(t) * 132, y = 130 - Math.sin(t) * 104; return '<button class="glass" style="left:' + x + 'px;top:' + y + 'px">' + ic(a[0]) + '</button>'; }).join('') + '<button class="main">' + ic('plus') + '</button></div>' +
+      '<div class="hintl">Touche le monstre pour le caresser</div></div>'],
+    ['2 · Carte du bas', 'Le décor en haut, une grande carte claire en bas : jauges en barres avec leur nom, six tuiles d\'action colorées bien lisibles, navigation dans une pastille flottante.',
+      '<div class="ph p2">' + scene() + '</div><div class="top"><span class="chip">Titan · Ado</span><span class="chip">14:20</span></div>' +
+      '<div class="card"><h3>Il est en pleine forme</h3><p>Son énergie baisse : pense à la sieste.</p><div class="st">' + ST.map(function (s, i) { return '<div>' + s[1] + ' · ' + s[2] + '<div class="m"><i style="width:' + s[2] + '%;background:' + ['#ff8a5b', '#ffc531', '#7c6cff', '#35c3e8'][i] + '"></i></div></div>'; }).join('') + '</div>' +
+      '<div class="acts">' + ACT.map(function (a, i) { return '<button style="background:' + ['#ffe1d4', '#fff0c2', '#d6f1fb', '#ffd9e6', '#fff6bf', '#e5defe'][i] + '">' + ic(a[0]) + a[1] + '</button>'; }).join('') + '</div></div>' +
+      '<div class="nav">' + navIcons.map(function (x, i) { return '<span class="' + (i ? '' : 'on') + '">' + ic(x[0]) + '</span>'; }).join('') + '</div></div>'],
+    ['3 · Console de poche', 'Un clin d\'œil à l\'œuf d\'origine, en version moderne : l\'écran dans un cadre, les jauges en bandeau, et six gros boutons « physiques » en dessous. La coque prend la couleur du look.',
+      '<div class="ph p3"><div class="brand">MINI-TITAN</div><div class="bezel">' + scene() + '<div class="hud">' + ST.map(function (s) { return '<span>' + ic(s[0]) + s[2] + '</span>'; }).join('') + '</div></div></div>' +
+      '<div class="pad">' + ACT.map(function (a) { return '<button>' + ic(a[0]) + a[1] + '</button>'; }).join('') + '</div>' +
+      '<div class="foot">' + navIcons.map(function (x) { return ic(x[0]); }).join('') + '</div></div>'],
+    ['4 · Jeu vidéo', 'Un affichage de jeu : portrait et barre de croissance en haut, jauges segmentées à droite, raccourcis à gauche, barre d\'actions lumineuse en bas où l\'action conseillée s\'allume.',
+      '<div class="ph p4">' + scene() + '</div><div class="hud"><div class="av">T</div><div class="inf glass"><b>Titan</b><small>Ado · 2 jours</small><div class="xp"><i></i></div></div></div>' +
+      '<div class="stats">' + ST.map(function (s) { var f = Math.round(s[2] / 12.5), seg = ''; for (var i = 0; i < 8; i++) seg += '<i class="' + (i < f ? 'f' : '') + '"></i>'; return '<div class="s glass">' + ic(s[0]) + '<div class="seg">' + seg + '</div></div>'; }).join('') + '</div>' +
+      '<div class="side">' + ['user', 'pal', 'star', 'gear'].map(function (k) { return '<button class="glass">' + ic(k) + '</button>'; }).join('') + '</div>' +
+      '<div class="dock glass">' + ACT.map(function (a, i) { return '<button class="' + (i === 4 ? 'hot' : '') + '">' + ic(a[0]) + a[1] + '</button>'; }).join('') + '</div></div>'],
+    ['5 · Tableau de bord', 'Une appli claire et calme, faite de cartes : le monstre dans une vignette, une carte « ce dont il a besoin » avec le bon bouton, quatre tuiles de jauges, les autres actions en raccourcis.',
+      '<div class="ph p5"><div class="head"><div><span>Ado · 2 jours</span><b>Titan</b></div><span>14:20</span></div>' + scene() + '</div>' +
+      '<div class="need"><div><b>Il commence à fatiguer</b><span>Éteins la lumière pour une sieste.</span></div><button>Lumière</button></div>' +
+      '<div class="tiles">' + ST.map(function (s) { return '<div class="tile"><b>' + s[2] + '</b><span>' + s[1] + '</span><div class="r"><i style="width:' + s[2] + '%"></i></div></div>'; }).join('') + '</div>' +
+      '<div class="quick">' + ACT.filter(function (a) { return a[0] !== 'light'; }).map(function (a) { return '<button>' + ic(a[0]) + a[1] + '</button>'; }).join('') + '</div>' +
+      '<div class="nav">' + navIcons.map(function (x, i) { return '<span class="' + (i ? '' : 'on') + '">' + ic(x[0]) + x[1] + '</span>'; }).join('') + '</div></div>']
+  ];
+  document.getElementById('row').innerHTML = M.map(function (m) { return '<figure>' + m[2] + '<figcaption><b>' + m[0] + '</b><span>' + m[1] + '</span></figcaption></figure>'; }).join('');
+  Array.prototype.forEach.call(document.querySelectorAll('.ph'), function (p) { p.style.setProperty('--a', A); p.style.setProperty('--a2', A2); p.style.setProperty('--b', sk.ui.bgBot); p.style.setProperty('--on', ON); });
+  /* pose le monstre les pieds sur la ligne de sol du décor (même calcul que dans l'appli) */
+  Array.prototype.forEach.call(document.querySelectorAll('.sc'), function (s) {
+    var w = s.clientWidth, h = s.clientHeight, e = Math.max(w / 400, h / 600), gb = 130 * e, side = Math.min(w * 0.95, (h - gb - 40) / 0.66), m = s.querySelector('.mon');
+    m.style.width = m.style.height = side + 'px'; m.style.left = (w - side) / 2 + 'px'; m.style.bottom = (gb - side * 0.1) + 'px';
+  });
+})();
+</script>
+</body>
+</html>
