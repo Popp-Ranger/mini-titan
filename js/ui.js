@@ -980,7 +980,7 @@
         '<div class="tu-hero">' + monster({ stage: 1, mood: 'happy' }) + '</div>' +
         rowI('clock', 'Passe le voir chaque jour', 'Quelques minutes, deux ou trois fois par jour, suffisent.') +
         rowI('star', 'Il évolue', 'Œuf, bébé, enfant, ado, puis adulte au bout d\'environ 9 jours.') +
-        rowI('heart', 'Touche-le', 'Un appui sur lui, c\'est une caresse : il adore ça.')],
+        rowI('heart', 'Fais-lui des câlins', 'Appuie sur ton monstre pour le caresser : il adore ça.')],
       ['Les quatre jauges', 'En haut à droite. Huit segments chacune : vertes tout va bien, orange attention, rouge urgence.',
         rowG(GAUGES[0], 'Baisse avec le temps. Remonte avec un repas.') +
         rowG(GAUGES[1], 'Remonte en jouant, avec une caresse ou une friandise.') +
