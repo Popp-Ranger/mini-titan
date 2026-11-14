@@ -825,6 +825,7 @@
         : '<div class="set">' + ic('install') + '<div class="tx"><span class="nm">Installer l\'appli</span><span class="ds">' + fr('Sur iPhone : bouton Partager, puis « Sur l\'écran d\'accueil ». Sur Android : menu du navigateur, puis « Installer l\'application ».') + '</span></div></div>') +
       '</div>' +
       '<p class="gt">Aide</p><div class="group">' +
+      '<button class="set" type="button" id="setTuto">' + ic('star') + '<div class="tx"><span class="nm">Tutoriel rapide</span><span class="ds">Les jauges et les boutons en cinq ' + String.fromCharCode(233) + 'crans.</span></div>' + ic('chev') + '</button>' +
       '<button class="set" type="button" id="setHelp">' + ic('help') + '<div class="tx"><span class="nm">Comment jouer</span></div>' + ic('chev') + '</button>' +
       '<a class="set" href="classique.html">' + ic('retro') + '<div class="tx"><span class="nm">Version classique</span><span class="ds">L\'œuf en pixels à trois boutons.</span></div>' + ic('chev') + '</a>' +
       '</div>' +
@@ -851,6 +852,7 @@
       try { var q = Notification.requestPermission(done); if (q && q.then) q.then(done, function () { done('denied'); }); } catch (e) { toast('Notifications indisponibles sur ce navigateur'); }
     });
     $('setHelp').addEventListener('click', openHelp);
+    $('setTuto').addEventListener('click', function () { sfx('tap'); showTuto(); });
     $('setWipe').addEventListener('click', function () {
       sfx('tap');
       var sh = sheet('Recommencer à zéro ?', '<p class="sheet-text">' + esc(S.name) + ', son journal et les anciens compagnons seront effacés pour de bon.</p><div class="sheet-actions"><button class="btn danger block" type="button" data-b="y">Tout effacer</button><button class="btn ghost block" type="button" data-b="n">Annuler</button></div>');
@@ -954,6 +956,7 @@
       else {
         inp.blur(); onbNow = null; core.setSkin(idx); core.rename(inp.value || 'Titan'); core.setOpt('chosen', true);   // le temps de l'œuf démarre ici
         sfx('ok'); f.close(); applyTheme(core.skin()); memo = {}; update();
+        later(showTuto, 350);
       }
     });
     inp.addEventListener('keydown', function (e) { if (e.key === 'Enter') inp.blur(); });
@@ -962,6 +965,65 @@
   }
 
   /* ------------------------------------------------------------------ 10. démarrage */
+  /* ------------------------------------------------------------------ tutoriel rapide (5 écrans)
+     Montré une fois, juste après « Faire éclore » (ou au premier lancement pour un joueur d'avant), et rejouable depuis les Réglages. */
+  var TUTO_KEY = 'mini-titan-tuto-v1', tutoNow = null;
+  function tutoSeen() { if (core.isDemo()) return true; try { return !!localStorage.getItem(TUTO_KEY); } catch (e) { return true; } }
+  function showTuto() {
+    if (tutoNow) return;
+    try { if (!core.isDemo()) localStorage.setItem(TUTO_KEY, '1'); } catch (e) {}
+    var rowG = function (g, txt) { return '<div class="tu-row"><span class="tu-ic tu-g">' + ic(g.ic) + '</span><div><b>' + g.lb + '</b><span>' + txt + '</span></div></div>'; };
+    var rowA = function (i, txt) { var a = ACTS[i]; return '<div class="tu-row"><span class="tu-ic tu-a" style="--c:' + a.c + ';--d:' + a.d + '">' + ic(a.ic) + '</span><div><b>' + a.lb + '</b><span>' + txt + '</span></div></div>'; };
+    var rowI = function (icn, t, txt) { return '<div class="tu-row"><span class="tu-ic tu-g">' + ic(icn) + '</span><div><b>' + t + '</b><span>' + txt + '</span></div></div>'; };
+    var steps = [
+      ['Ton monstre vit en vrai', 'Il grandit, a faim et s\'endort en temps réel, même quand l\'appli est fermée.',
+        '<div class="tu-hero">' + monster({ stage: 1, mood: 'happy' }) + '</div>' +
+        rowI('clock', 'Passe le voir chaque jour', 'Quelques minutes, deux ou trois fois par jour, suffisent.') +
+        rowI('star', 'Il évolue', 'Œuf, bébé, enfant, ado, puis adulte au bout d\'environ 9 jours.') +
+        rowI('heart', 'Touche-le', 'Un appui sur lui, c\'est une caresse : il adore ça.')],
+      ['Les quatre jauges', 'En haut à droite. Huit segments chacune : vertes tout va bien, orange attention, rouge urgence.',
+        rowG(GAUGES[0], 'Baisse avec le temps. Remonte avec un repas.') +
+        rowG(GAUGES[1], 'Remonte en jouant, avec une caresse ou une friandise.') +
+        rowG(GAUGES[2], 'Baisse quand il est debout. Remonte quand il dort.') +
+        rowG(GAUGES[3], 'Baisse avec le temps et les crottes. Remonte avec un bain.') +
+        '<p class="tu-note">Touche une jauge dans le jeu pour revoir son explication.</p>'],
+      ['Les six boutons', 'En bas de l\'écran. Celui dont il a besoin s\'entoure de blanc et sautille.',
+        rowA(0, 'Repas pour la faim, friandises pour le plaisir (pas trop : ça rend malade).') +
+        rowA(1, 'Trois mini-jeux qui remontent son humeur.') +
+        rowA(2, 'Frotte-le avec l\'éponge jusqu\'à ce qu\'il brille.') +
+        rowA(3, 'Le médicament quand il est malade, parfois deux doses.') +
+        rowA(4, 'Éteins quand il dort. Rallume pour le réveiller.') +
+        rowA(5, 'Juste pour le plaisir : il pousse son cri.')],
+      ['Quand il a besoin de toi', 'Il te le montre de trois façons.',
+        rowI('bell', 'La cloche rouge', 'Une jauge est vide ou il est malade. Sans réponse en 15 minutes, c\'est une erreur de soin.') +
+        rowI('smile', 'La bulle au-dessus de lui', 'Elle montre ce qu\'il lui faut : un steak, un savon, une ampoule…') +
+        rowI('wash', 'Les crottes', 'Touche-les pour les ramasser. Les laisser traîner le rend malade.') +
+        rowI('alert', 'Les erreurs de soin', 'Trop d\'erreurs et il deviendra un adulte Grognon au lieu d\'un Titan. Négligé deux jours, il s\'envole.')],
+      ['Sommeil et raccourcis', 'Dernières choses à savoir.',
+        rowI('moon', 'La nuit', 'Il s\'endort seul le soir et se réveille à 8 h. Éteins la lumière. Pour jouer la nuit, rallume : il reste debout 20 minutes.') +
+        rowI('user', 'Profil', 'Son âge, son poids, sa croissance et son journal.') +
+        rowI('palette', 'Looks', 'Change son apparence et son décor quand tu veux.') +
+        rowI('star', 'Album', 'Ta collection et tes succès. Ils restent même s\'il s\'envole.') +
+        rowI('gear', 'Réglages', 'Sons, vibrations, et ce tutoriel à revoir.')]
+    ];
+    var n = steps.length, step = 0;
+    var f = tutoNow = full('tuto', steps.map(function (s, i) {
+      var dots = ''; for (var k = 0; k < n; k++) dots += '<i class="' + (k === i ? 'on' : '') + '"></i>';
+      return '<div class="tu-step" data-s="' + i + '"><div class="tu-top"><button class="iconbtn" type="button" data-b="back" aria-label="Retour"' + (i ? '' : ' style="visibility:hidden"') + '>' + ic('back') + '</button><div class="tu-dots">' + dots + '</div>' +
+        '<button class="tu-skip" type="button" data-b="skip">' + (i < n - 1 ? 'Passer' : '') + '</button></div>' +
+        '<div class="tu-body"><h2>' + s[0] + '</h2><p class="tu-lead">' + fr(s[1]) + '</p>' + s[2] + '</div>' +
+        '<div class="full-foot"><button class="btn block" type="button" data-b="next">' + (i < n - 1 ? 'Suivant' : 'C\'est parti !') + '</button></div></div>';
+    }).join(''), function () { if (step > 0) { show(step - 1); return true; } return false; });
+    function show(i) { step = i; Array.prototype.forEach.call(f.el.querySelectorAll('.tu-step'), function (s) { s.classList.toggle('on', +s.dataset.s === i); }); }
+    function end() { tutoNow = null; f.close(); update(); }
+    f.el.addEventListener('click', function (e) {
+      var b = e.target.closest('[data-b]'); if (!b) return;
+      sfx('tap');
+      if (b.dataset.b === 'back') show(step - 1); else if (b.dataset.b === 'skip' || step >= n - 1) end(); else show(step + 1);
+    });
+    show(0);
+  }
+
   var DEMO = {
     oeuf: { stage: 0 },
     bebe: { stage: 1, age: 20, grow: 20, hunger: 70, happy: 82, hygiene: 90 },
@@ -1010,7 +1072,7 @@
     document.addEventListener('focusin', function (e) { document.documentElement.classList.toggle('typing', e.target.tagName === 'INPUT'); });
     document.addEventListener('focusout', function () { document.documentElement.classList.remove('typing'); });
     bindBack();
-    if (!S.chosen) showOnboarding(); else if (S.dead) showMemorial();
+    if (!S.chosen) showOnboarding(); else if (S.dead) showMemorial(); else if (!tutoSeen()) later(showTuto, 500);
     var e = q.ecran;
     if (e === 'profil' || e === 'looks' || e === 'album' || e === 'reglages') go(e); else if (e) later(function () { open(e); }, 60);
     if (q.etape && onbNow) onbNow.show(clamp(+q.etape || 0, 0, 2));        // essais : &etape=1 (looks) ou 2 (nom) sur l'accueil
@@ -1038,7 +1100,7 @@
   }
   function open(name) {
     if (name === 'nourrir') openFeed(); else if (name === 'jeux') openGames(); else if (name === 'laver') startWash();
-    else if (name === 'aide') openHelp(); else if (name === 'accueil') showOnboarding(); else if (name === 'nom') openRename();
+    else if (name === 'tuto') showTuto(); else if (name === 'aide') openHelp(); else if (name === 'accueil') showOnboarding(); else if (name === 'nom') openRename();
     else if (/^jeu-/.test(name || '')) runGame(name.slice(4));
     else if (name === 'evolution') showEvolve({ stage: Math.max(0, S.stage - 1), form: '' }, { stage: S.stage, form: S.form }, core.stageName(), 'Il grandit à vue d\'œil. Continue de bien t\'en occuper.');
     else if (name === 'resultat' && MT.games && MT.games.list[0]) showResult(MT.games.list[0], { win: true, score: 7 }, { close: function () {} }, { gain: 28, tired: 4, lost: 1 });

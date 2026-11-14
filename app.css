@@ -687,3 +687,35 @@ html, body, .app, .app * { touch-action: manipulation; }
 .act[data-a="light"]:not(.lit) .circ { filter: saturate(.3) brightness(.75); }
 .stage.washing .side, .stage.washing .gauges { opacity: 0; pointer-events: none; }
 @media (max-height: 600px) { .topright .clock { display: none; } }
+
+/* ------------------------------------------------------------------ tutoriel rapide */
+.tuto .tu-step { position: absolute; inset: 0; display: none; flex-direction: column; }
+.tuto .tu-step.on { display: flex; animation: ui-step .32s var(--ease) both; }
+.tu-top { flex: none; display: flex; align-items: center; justify-content: space-between; padding: calc(var(--sat) + 8px) 12px 0; }
+.tu-dots { display: flex; gap: 6px; }
+.tu-dots i { width: 8px; height: 8px; border-radius: 4px; background: var(--fill2); transition: width .25s var(--ease), background .25s; }
+.tu-dots i.on { width: 22px; background: var(--ink); }
+.tu-skip { min-width: 64px; height: 48px; font-size: 15px; font-weight: 700; color: var(--ink2); text-align: right; padding-right: 6px; }
+.tu-body { flex: 1 1 auto; min-height: 0; overflow-y: auto; padding: 6px 20px 8px; }
+.tu-body h2 { font-size: 27px; line-height: 1.12; font-weight: 800; letter-spacing: -.025em; }
+.tu-lead { font-size: 15.5px; line-height: 1.45; color: var(--ink2); margin: 6px 0 14px; }
+.tu-hero { width: min(52vw, 190px, 24vh); aspect-ratio: 1; margin: 0 auto 8px; }
+.tu-hero .mt-mon { width: 100%; height: 100%; }
+.tu-row { display: flex; align-items: center; gap: 12px; padding: 9px 12px; border-radius: 18px; background: var(--fill); box-shadow: inset 0 0 0 1px var(--line); }
+.tu-row + .tu-row { margin-top: 8px; }
+.tu-row b { display: block; font-size: 15.5px; font-weight: 800; }
+.tu-row div > span { display: block; font-size: 13.5px; line-height: 1.35; color: var(--ink2); }
+.tu-ic { flex: none; width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; }
+.tu-ic.tu-g { background: var(--fill2); color: var(--hi); }
+.tu-ic.tu-a { color: #fff; background: radial-gradient(circle at 34% 26%, rgba(255, 255, 255, .65), transparent 42%), var(--c); box-shadow: 0 4px 0 var(--d); }
+.tu-ic .ic { width: 23px; height: 23px; stroke-width: 2.3; }
+.tu-note { font-size: 13px; color: var(--ink3); margin-top: 12px; text-align: center; }
+@media (max-height: 700px) {
+  .tu-body h2 { font-size: 23px; } .tu-lead { font-size: 14.5px; margin: 4px 0 10px; }
+  .tu-row { padding: 6px 10px; gap: 10px; } .tu-row + .tu-row { margin-top: 6px; }
+  .tu-row b { font-size: 14.5px; } .tu-row div > span { font-size: 12.5px; line-height: 1.3; }
+  .tu-ic { width: 36px; height: 36px; } .tu-ic .ic { width: 20px; height: 20px; }
+  .tu-hero { width: min(40vw, 130px, 18vh); margin-bottom: 4px; }
+}
+.tu-hero .mt-mon { transform: scale(2); transform-origin: 50% 90%; }
+.tu-hero { margin-top: 26px; }
