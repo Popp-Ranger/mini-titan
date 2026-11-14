@@ -753,7 +753,7 @@
 
   function drawProfil() {
     var v = $('v-profil'), keep = v.scrollTop, sk = core.skin(), st = core.STAGES[S.stage], egg = S.stage === 0;
-    var left = st.dur === Infinity ? '' : 'Prochain stade dans ' + fmtDur(st.dur - S.grow) + '.';
+    var left = '';                                  // le délai avant le prochain stade reste secret : seule la jauge de croissance le laisse deviner
     // chaque stade est recadré sur lui-même : il remplit 72 % de sa pastille, centré (sinon l'œuf et le bébé sont des points)
     var friseMon = function (i) {
       var form = i === 4 ? S.form : '', H = form === 'grognon' ? HEIGHT.grognon : HEIGHT[i], k = 0.72 / H, cy = 90 - H * 50;
@@ -979,7 +979,7 @@
       ['Ton monstre vit en vrai', 'Il grandit, a faim et s\'endort en temps réel, même quand l\'appli est fermée.',
         '<div class="tu-hero">' + monster({ stage: 1, mood: 'happy' }) + '</div>' +
         rowI('clock', 'Passe le voir chaque jour', 'Quelques minutes, deux ou trois fois par jour, suffisent.') +
-        rowI('star', 'Il évolue', 'Œuf, bébé, enfant, ado, puis adulte au bout d\'environ 9 jours.') +
+        rowI('star', 'Il évolue', 'Œuf, bébé, enfant, ado, puis adulte. Sa jauge de croissance te montre où il en est.') +
         rowI('heart', 'Fais-lui des câlins', 'Appuie sur ton monstre pour le caresser : il adore ça.')],
       ['Les quatre jauges', 'En haut à droite. Huit segments chacune : vertes tout va bien, orange attention, rouge urgence.',
         rowG(GAUGES[0], 'Baisse avec le temps. Remonte avec un repas.') +
